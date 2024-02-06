@@ -5,12 +5,12 @@ import pyvisa as visa
 
 
 
-def countPeaks(data: list, h: float) -> int:
-    """data, peak height V -> number of peaks"""
-
+def countPeaks(data: list, h: float, d = None) -> int:
+    """data, peak height V -> number of peaks, d -> min distance between two peaks"""
+    
     x = np.array(data)
 
-    peaks, _ = find_peaks(x, height = h)
+    peaks, _ = find_peaks(x, height = h, threshold=None, distance=d)
 
     return len(peaks)
 

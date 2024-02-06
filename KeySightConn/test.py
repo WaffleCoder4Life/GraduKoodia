@@ -33,9 +33,10 @@ instr.write( ":WAVeform:POINts 1000")
 
 singleDark = 0
 crossCount = 0
+#data= []
 
 i=0
-while(i<10):
+while(i<1):
     #Lähettää capture komennon kanavalle1, asetukset capturelle määritetään AQUire subsysteemillä
     instr.write(":DIGitize CHANnel1")
     #Kysy dataa oskilloskoopilta, vain viimeinen kysely muistissa
@@ -43,9 +44,8 @@ while(i<10):
     instr.write( ":WAVeform:DATA?")
     data = ms.readData(instr)
     i+=1
-    crossCount += ms.countPeaks(data, 0.005)
-    singleDark += ms.countPeaks(data, 0.005)
-    
+    crossCount += ms.countPeaks(data, 0.003)
+    singleDark += ms.countPeaks(data, 0.003)
 
 print("Cross count:",crossCount)
 print("Dark count:",singleDark)
