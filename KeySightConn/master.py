@@ -40,7 +40,7 @@ def readData(laite):
 
 
 
-def plotData(data: list, range: float) -> plt.figure:
+def plotData(data: list, range=10) -> plt.figure:
     """Datalista, oskilloskoopille määritetty t-akselin range mikrosekunneissa
     HUOM olettaa et eka datapiste poistettu
     -> näyttää scatter plotin datasta, t-arvot tasavälein range-alueesta
@@ -49,14 +49,15 @@ def plotData(data: list, range: float) -> plt.figure:
     t = np.linspace(0, range, len(data) + 1)
     t = np.delete(t, 0)
 
-    fig = plt.figure()
-    plt.locator_params(axis='y', nbins=5)
-    plt.locator_params(axis='x', nbins=10)
+    plt.figure(1)
     plt.xlabel('$t$ / us')
     plt.ylabel('$U$ / V')
     plt.scatter(t, data, marker='.', c='black')
+    plt.locator_params(axis='both', nbins=5)
+    #plt.locator_params(axis='x', nbins=10)
     plt.tight_layout()
     plt.show()
+    fig = plt.figure(1)
 
     return fig
 
