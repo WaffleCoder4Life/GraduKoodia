@@ -1,4 +1,7 @@
 import pyvisa as visa
+import readData as gd
+import countPeaks as cp
+import plotData as pd
 
 rm = visa.ResourceManager()
 list = rm.list_resources()
@@ -20,18 +23,41 @@ instr.write("CHAN1:DISP 1")
 
 
 #Set Y-axis range (bottom to top, 8 div on screen)
-instr.write(":CHANnel1:RANGe 10")
+instr.write(":CHANnel1:RANGe 0.016")
 
 
+singleDark = 0
+crossCount = 0
 
-instr.write(":ACQuire:TYPE NORMal")
-instr.write(":ACQuire:COMPlete 100")
-instr.write(":DIGitize CHANnel1")
-instr.write(":WAVeform:SOURce CHANnel1")
-instr.write( ":WAVeform:FORMat ASCii")
-instr.write(":WAVeform:POINts:MODE NORMal")
-instr.write( ":WAVeform:POINts 100")
-instr.write( ":WAVeform:DATA?")
+i=0
+while(i<10):
+    #Mittausasetukset.
+    instr.write(":ACQuire:TYPE NORMal")
+    instr.write(":ACQuire:COMPlete 100")
+    #Aseta mikä kanava käytössä
+    instr.write(":DIGitize CHANnel1")
+    instr.write(":WAVeform:SOURce CHANnel1")
+    #Data oikeassa muodossa ASCii
+    instr.write( ":WAVeform:FORMat ASCii")
+    instr.write(":WAVeform:POINts:MODE NORMal")
+    #Datapisteiden määrä
+    instr.write( ":WAVeform:POINts 100")
+    #Kysy dataa oskilloskoopilta, vain viimeinen kysely muistissa
+    instr.write( ":WAVeform:DATA?")
+    data = gd.readData(instr)
+    i+=1
+    crossCount += cp.countPeaks(data, 0)
+    singleDark += cp.countPeaks(data, 0)
+    
+
+
+print("Cross count:",crossCount)
+print("Dark count:",singleDark)
+
+
+#data = gd.readData(instr)
+#print(gd.readData(instr))
+#pd.plotData(data, 10)
 
 
 
