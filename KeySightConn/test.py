@@ -54,7 +54,7 @@ print("Dark count:",singleDark)
 
 #data = ms.readData(instr)
 #print(ms.readData(instr))
-#ms.plotData(data, 10)
+ms.plotData(data, 10)
 
 
 
