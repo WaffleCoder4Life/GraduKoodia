@@ -3,7 +3,7 @@ import numpy as np
 
 
 def plotData(data: list, range: float) -> plt.figure:
-    """Datalista, oskilloskoopille määritetty t-akselin range
+    """Datalista, oskilloskoopille määritetty t-akselin range mikrosekunneissa
     HUOM olettaa et eka datapiste poistettu
     -> näyttää scatter plotin datasta, t-arvot tasavälein range-alueesta
     -> palauttaa kuvaajan"""
@@ -12,7 +12,9 @@ def plotData(data: list, range: float) -> plt.figure:
     t = np.delete(t, 0)
 
     fig = plt.figure()
-    plt.scatter(t, data, marker='s', c='mediumorchid')
+    plt.xlabel('$t$ / us')
+    plt.ylabel('$U$ / V')
+    plt.scatter(t, data, marker='.', c='mediumorchid')
     plt.tight_layout()
     plt.show()
 
