@@ -1,5 +1,8 @@
 import pyvisa as visa
-import master as ms
+import setDisplay as sd
+import plotData as pd
+import countPeaks as cp
+import readData as rd
 
 rm = visa.ResourceManager()
 list = rm.list_resources()
@@ -20,7 +23,7 @@ instr.write("CHAN1:DISP 1")
 #instr.write(":CHANnel1:PROBe 1")
 
 
-ms.setDisplay(instr, 0.04, 5)
+sd.setDisplay(instr, 0.04, 5)
 #Mittausasetukset.
 instr.write(":ACQuire:TYPE NORMal")
 instr.write(":ACQuire:COMPlete 100")
@@ -42,10 +45,10 @@ while(i<1):
     #Kysy dataa oskilloskoopilta, vain viimeinen kysely muistissa
     #Asetukset mitä kysytään aiemmillla WAVeform komennoilla
     instr.write( ":WAVeform:DATA?")
-    data = ms.readData(instr)
+    data = rd.readData(instr)
     i+=1
-    crossCount += ms.countPeaks(data, 0.003)
-    singleDark += ms.countPeaks(data, 0.003)
+    crossCount += cp.countPeaks(data, 0.003)
+    singleDark += cp.countPeaks(data, 0.003)
 
 print("Cross count:",crossCount)
 print("Dark count:",singleDark)
@@ -54,7 +57,7 @@ print("Dark count:",singleDark)
 
 #data = ms.readData(instr)
 #print(ms.readData(instr))
-ms.plotData(data, 10)
+pd.plotData(data, 10)
 
 
 

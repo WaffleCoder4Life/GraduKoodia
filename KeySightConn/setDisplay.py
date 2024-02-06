@@ -2,7 +2,7 @@
 
 
 #Laite = laitteen nimi, Voltti [V] ja time [us]
-def detDisplay(laite, voltti: float, time: float)->None:
+def setDisplay(laite, voltti: float, time: float)->None:
     time = str(time)
     voltti = str(voltti)
     #Set Y-axis range (bottom to top, 8 div on screen)
