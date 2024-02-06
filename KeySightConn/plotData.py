@@ -14,7 +14,7 @@ def plotData(data: list, range: float) -> plt.figure:
     fig = plt.figure()
     plt.xlabel('$t$ / us')
     plt.ylabel('$U$ / V')
-    plt.scatter(t, data, marker='.', c='mediumorchid')
+    plt.scatter(t, data, marker='.', c='black')
     plt.tight_layout()
     plt.show()
 
