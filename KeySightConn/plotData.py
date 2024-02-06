@@ -1,17 +1,19 @@
+import matplotlib.pyplot as plt
+import numpy as np
 
 
-def plotData(data: list, points: int, range: float):
-    """Datalista, datapisteitten lukumäärä, oskilloskoopille määritetty t-akselin range
-    -> scatter plot datasta, t-arvot tasavälein range-alueesta"""
+def plotData(data: list, range: float) -> plt.figure:
+    """Datalista, oskilloskoopille määritetty t-akselin range
+    HUOM olettaa et eka datapiste poistettu
+    -> näyttää scatter plotin datasta, t-arvot tasavälein range-alueesta
+    -> palauttaa kuvaajan"""
 
-    plt = "matplotlib.pyplot"
-    np = "numpy"
-    __import__(plt)
-    __import__(np)
+    t = np.linspace(0, range, len(data) + 1)
+    t = np.delete(t, 0)
 
-    t = np.linspace(min(range), max(range), points)
-
-    fig = plt.scatter(t, data, marker='s', c='mediumorchid')
+    fig = plt.figure()
+    plt.scatter(t, data, marker='s', c='mediumorchid')
+    plt.tight_layout()
+    plt.show()
 
     return fig
-
