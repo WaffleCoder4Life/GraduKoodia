@@ -48,17 +48,17 @@ def plotData(data: list, range: float) -> plt.figure:
 
     t = np.linspace(0, range, len(data) + 1)
     t = np.delete(t, 0)
-    yticks = np.linspace(min(data), max(data), 5)
 
     fig = plt.figure()
-    plt.yticks(yticks)
+    plt.locator_params(axis='y', nbins=5)
+    plt.locator_params(axis='x', nbins=10)
     plt.xlabel('$t$ / us')
     plt.ylabel('$U$ / V')
     plt.scatter(t, data, marker='.', c='black')
     plt.tight_layout()
     plt.show()
 
-    return figS
+    return fig
 
 #Näyttöasetukset, Channel range 8 div, timebase range 10 div
 
