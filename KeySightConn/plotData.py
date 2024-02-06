@@ -10,8 +10,10 @@ def plotData(data: list, range: float) -> plt.figure:
 
     t = np.linspace(0, range, len(data) + 1)
     t = np.delete(t, 0)
+    yticks = np.linspace(min(data), max(data), 5)
 
     fig = plt.figure()
+    plt.yticks(yticks)
     plt.xlabel('$t$ / us')
     plt.ylabel('$U$ / V')
     plt.scatter(t, data, marker='.', c='black')
