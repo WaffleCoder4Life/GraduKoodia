@@ -1,7 +1,5 @@
 import pyvisa as visa
-import readData as gd
-import countPeaks as cp
-import plotData as pd
+import master as ms
 
 rm = visa.ResourceManager()
 list = rm.list_resources()
@@ -22,42 +20,41 @@ instr.write("CHAN1:DISP 1")
 #instr.write(":CHANnel1:PROBe 1")
 
 
-#Set Y-axis range (bottom to top, 8 div on screen)
-instr.write(":CHANnel1:RANGe 0.016")
-
+ms.setDisplay(instr, 0.04, 5)
+#Mittausasetukset.
+instr.write(":ACQuire:TYPE NORMal")
+instr.write(":ACQuire:COMPlete 100")
+instr.write(":WAVeform:SOURce CHANnel1")
+#Data oikeassa muodossa ASCii
+instr.write( ":WAVeform:FORMat ASCii")
+instr.write(":WAVeform:POINts:MODE NORMal")
+#Datapisteiden määrä
+instr.write( ":WAVeform:POINts 1000")
 
 singleDark = 0
 crossCount = 0
 
 i=0
 while(i<10):
-    #Mittausasetukset.
-    instr.write(":ACQuire:TYPE NORMal")
-    instr.write(":ACQuire:COMPlete 100")
-    #Aseta mikä kanava käytössä
+    #Lähettää capture komennon kanavalle1, asetukset capturelle määritetään AQUire subsysteemillä
     instr.write(":DIGitize CHANnel1")
-    instr.write(":WAVeform:SOURce CHANnel1")
-    #Data oikeassa muodossa ASCii
-    instr.write( ":WAVeform:FORMat ASCii")
-    instr.write(":WAVeform:POINts:MODE NORMal")
-    #Datapisteiden määrä
-    instr.write( ":WAVeform:POINts 100")
     #Kysy dataa oskilloskoopilta, vain viimeinen kysely muistissa
+    #Asetukset mitä kysytään aiemmillla WAVeform komennoilla
     instr.write( ":WAVeform:DATA?")
-    data = gd.readData(instr)
+    data = ms.readData(instr)
     i+=1
-    crossCount += cp.countPeaks(data, 0)
-    singleDark += cp.countPeaks(data, 0)
+    crossCount += ms.countPeaks(data, 0.005)
+    singleDark += ms.countPeaks(data, 0.005)
     
-
 
 print("Cross count:",crossCount)
 print("Dark count:",singleDark)
 
+#data = ms.readData(instr)
 
-#data = gd.readData(instr)
-#print(gd.readData(instr))
-#pd.plotData(data, 10)
+#data = ms.readData(instr)
+#print(ms.readData(instr))
+#ms.plotData(data, 10)
 
 
 

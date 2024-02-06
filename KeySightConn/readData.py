@@ -5,6 +5,7 @@
 
 def readData(laite):
     with open("raakaData.csv", "w") as file:
+        #Lukee laitteelta uuden datan
         file.write(laite.read())
 
     dataLista = []
