@@ -2,24 +2,26 @@ import pyvisa
 import keyboard
 
 
-def generate_pulses(scope, frequency, amplitude, pulse_width):
-    # Configure the signal source (replace with the correct SCPI command)
+#Laite, pulssin taajuus, pulssin amplitude (vakiona pulssin low=0), pulssin leveys
+def generate_pulses(scope, frequency:str, amplitude:str, pulse_width:str):
+    # Configure the signal source
     scope.write("WGEN:FREQuency "+str(frequency))
-    scope.write("WGEN:VOLTage "+str(amplitude))
+    scope.write("WGEN:VOLTage:HIGH "+str(amplitude))
+    scope.write("WGEN:VOLTage:LOW 0")
 
-    # Set the pulse parameters (replace with the correct SCPI command)
+    # Set the pulse parameters
     scope.write("WGEN:FUNCtion:PULSe:WIDTh "+str(pulse_width))
 
-    # Enable the output (replace with the correct SCPI command)
+    # Enable the output
     scope.write("WGEN:OUTPut1 1")
 
     print("Generating pulses...")
     
 
-    while True:
+    """ while True:
         if keyboard.is_pressed('q'):
             scope.write("WGEN:OUTPut1 0")
             print("Pulse generation stopped.")
-            break
+            break """
 
    

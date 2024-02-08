@@ -1,11 +1,10 @@
 import pyvisa as visa
 import setDisplay as sd
-import string
-import struct
-import sys
 import plotData
 import countPeaks
 import setDisplay
+import pulseGenerator as pg
+import keyboard
 
 
 
@@ -36,9 +35,11 @@ yOrigin = float(instr.query("WAVeform:YORIGIN?"))
 #print("Y-increment: ",yIncrement)
 #print("Y-origin: ",+yOrigin)
 
+pg.generate_pulses(instr, "800E3", "5E-3", "120E-9")
+
 darkCounts = 0
 i = 0
-while(i<1):
+while(i<10):
     instr.write(":DIGitize")
     #instr.write(":WAVeform:DATA?")
     values = instr.query_binary_values(":WAVeform:DATA?", datatype = "B")
@@ -48,7 +49,12 @@ while(i<1):
         trueValue.append((value-128)*yIncrement+yOrigin)
     darkCounts += countPeaks.countPeaks(trueValue, 0.003, 500)
     i+=1
-    
+
+while True:
+        if keyboard.is_pressed('q'):
+            instr.write("WGEN:OUTPut1 0")
+            print("Pulse generation stopped.")
+            break 
 
 print(darkCounts)
 

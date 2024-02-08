@@ -18,5 +18,7 @@ instr = rm.open_resource(list[0])
 instr.write("*IDN?")
 print(instr.read())
 
-pg.generate_pulses(instr, "800E3", "5E-3", "60E-9")
+
+
+pg.generate_pulses(instr, "800E3", "5E-3", "120E-9")
 
