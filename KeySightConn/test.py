@@ -32,7 +32,7 @@ instr.write(":WAVeform:SOURce CHANnel1")
 instr.write( ":WAVeform:FORMat ASCii")
 instr.write(":WAVeform:POINts:MODE NORMal")
 #Datapisteiden määrä
-instr.write( ":WAVeform:POINts 1000")
+instr.write( ":WAVeform:POINts 100")
 
 singleDark = 0
 crossCount = 0
@@ -57,7 +57,7 @@ print("Dark count:",singleDark)
 
 #data = ms.readData(instr)
 #print(ms.readData(instr))
-pd.plotData(data, 10)
+#pd.plotData(data, 10)
 
 
 

@@ -1,6 +1,10 @@
 import pyvisa as visa
-import master as ms
-import time
+import setDisplay as sd
+import string
+import struct
+import sys
+import plotData
+import countPeaks
 
 
 
@@ -17,40 +21,30 @@ print(instr.read())
 instr.write("CHAN1:DISP 1")
 
 
-ms.setDisplay(instr, 0.04, 5)
-#Mittausasetukset.
-instr.write(":ACQuire:TYPE NORMal")
-instr.write(":ACQuire:COMPlete 100")
 instr.write(":WAVeform:SOURce CHANnel1")
-#Data oikeassa muodossa ASCii
-instr.write( ":WAVeform:FORMat ASCii")
-instr.write(":WAVeform:POINts:MODE NORMal")
-#Datapisteiden määrä
-instr.write( ":WAVeform:POINts 1000")
 
-singleDark = 0
-crossCount = 0
-#data= []
+instr.write( ":WAVeform:FORMat byte")
 
-#Lähettää capture komennon kanavalle1, asetukset capturelle määritetään AQUire subsysteemillä
-#instr.write(":DIGitize CHANnel1")
-#Kysy dataa oskilloskoopilta, vain viimeinen kysely muistissa
-#Asetukset mitä kysytään aiemmillla WAVeform komennoilla
+darkCounts = 0
+i = 0
+while(i<1):
+    instr.write(":DIGitize")
+    #instr.write(":WAVeform:DATA?")
+    values = instr.query_binary_values(":WAVeform:DATA?", datatype = "s")
+    darkCounts += countPeaks.countPeaks(values, 150, 20)
+    i+=1
 
-datasetit = 0
-t_end = time.time() + 5
-instr.write(":RUN")
-while time.time() < t_end:
-    #instr.write( ":WAVeform:DATA?")
-    """ data = ms.readData(instr)
-    crossCount += ms.countPeaks(data, 0.003)
-    singleDark += ms.countPeaks(data, 0.003) """
-    datasetit += 1
+print(darkCounts)
+#values = instr.query_binary_values('CURV?', datatype='d', is_big_endian=True)
 
-instr.write(":STOP")
+print(values)
+yIncrement = float(instr.query(":WAVeform:YINCREMENT?"))
+yOrigin = float(instr.query("WAVeform:YORIGIN?"))
+print("Y-increment: ",yIncrement)
+print("Y-origin: ",+yOrigin)
+trueValue=[]
+for value in values:
+    trueValue.append(value*yIncrement+yOrigin)
 
-#print(instr.write(":MEASure:RESults?"))
 
-print("Cross count:",crossCount)
-print("Dark count:",singleDark)
-print(datasetit)
+plotData.plotData(trueValue, 10)
