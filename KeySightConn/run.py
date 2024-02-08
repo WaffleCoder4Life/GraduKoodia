@@ -5,6 +5,7 @@ import struct
 import sys
 import plotData
 import countPeaks
+import setDisplay
 
 
 
@@ -20,31 +21,35 @@ print(instr.read())
 #Kanava 1: päällä(0/1)
 instr.write("CHAN1:DISP 1")
 
+setDisplay.setDisplay(instr, 0.04, 5)
 
 instr.write(":WAVeform:SOURce CHANnel1")
 
 instr.write( ":WAVeform:FORMat byte")
+
+instr.write("WAVeform:POINTS 5000")
+
+time_scale = 10**(6)*float(instr.query(":TIMebase:RANGE?"))
+#print(values)
+yIncrement = float(instr.query(":WAVeform:YINCREMENT?"))
+yOrigin = float(instr.query("WAVeform:YORIGIN?"))
+#print("Y-increment: ",yIncrement)
+#print("Y-origin: ",+yOrigin)
 
 darkCounts = 0
 i = 0
 while(i<1):
     instr.write(":DIGitize")
     #instr.write(":WAVeform:DATA?")
-    values = instr.query_binary_values(":WAVeform:DATA?", datatype = "s")
-    darkCounts += countPeaks.countPeaks(values, 150, 20)
+    values = instr.query_binary_values(":WAVeform:DATA?", datatype = "B")
+    trueValue=[]
+    for value in values:
+        # -128 jotta skaalaa binaarit oikein, samoin yincrement ja yorigin
+        trueValue.append((value-128)*yIncrement+yOrigin)
+    darkCounts += countPeaks.countPeaks(trueValue, 0.003, 500)
     i+=1
+    
 
 print(darkCounts)
-#values = instr.query_binary_values('CURV?', datatype='d', is_big_endian=True)
 
-print(values)
-yIncrement = float(instr.query(":WAVeform:YINCREMENT?"))
-yOrigin = float(instr.query("WAVeform:YORIGIN?"))
-print("Y-increment: ",yIncrement)
-print("Y-origin: ",+yOrigin)
-trueValue=[]
-for value in values:
-    trueValue.append(value*yIncrement+yOrigin)
-
-
-plotData.plotData(trueValue, 10)
+plotData.plotData(trueValue, time_scale)

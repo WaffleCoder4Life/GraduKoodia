@@ -7,7 +7,7 @@ def countPeaks(data: list, h: float, d = 5) -> int:
     x = np.array(data)
 
     peaks, _ = find_peaks(x, height = h, distance=d)
-
+    print(peaks)
     return len(peaks)
 
 
