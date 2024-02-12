@@ -9,6 +9,8 @@ def generate_pulses(scope, frequency:str, amplitude:str, pulse_width:str):
     scope.write("WGEN:VOLTage:HIGH "+str(amplitude))
     scope.write("WGEN:VOLTage:LOW 0")
 
+
+    scope.write("WGEN:FUNCtion PULSe")
     # Set the pulse parameters
     scope.write("WGEN:FUNCtion:PULSe:WIDTh "+str(pulse_width))
 
