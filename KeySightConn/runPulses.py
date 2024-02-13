@@ -1,7 +1,7 @@
 import pyvisa as visa
 import setDisplay as sd
 import pulseGenerator as pg
-
+import saveData
 
 
 rm = visa.ResourceManager()
@@ -14,8 +14,9 @@ print(instr.read())
 
 sd.setDisplay(instr, 1, 1, 0.3)
 
+pg.generate_pulses(instr, "100", "6", "20E-9")
 
-pg.generate_pulses(instr, "100", "0.5", "20E-9")
+#saveData.saveData(instr, "testi1.csv")
 
 
 

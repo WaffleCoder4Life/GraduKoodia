@@ -4,7 +4,7 @@ import countPeaks
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
-import plotData as pd
+
 
 
 rm = visa.ResourceManager()
@@ -46,7 +46,10 @@ while True:
 
     darkCounts = 0
     i = 0
-    while(i<500):
+
+    #Muuta mittausten määrä tästä!!!!
+    mittaukset = 500
+    while(i<mittaukset):
         instr.write(":DIGitize")
         #instr.write(":WAVeform:DATA?")
         values = instr.query_binary_values(":WAVeform:DATA?", datatype = "B")
@@ -57,7 +60,7 @@ while True:
         darkCounts += countPeaks.countPeaks(trueValue, peakHeight)
         i+=1
         
-    trueTime = 1000*time_scale
+    trueTime = mittaukset*time_scale
     #Hz/mm^2, active area = 3.07mm*3.07mm
     dcr = darkCounts/(trueTime*3.07*3.07)
 
