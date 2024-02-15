@@ -12,11 +12,13 @@ instr = rm.open_resource(list[0])
 instr.write("*IDN?")
 print(instr.read())
 
-sd.setDisplay(instr, 1, 1, 0.3)
+#sd.setDisplay(instr, 1, 1000, 0.3)
 
-pg.generate_pulses(instr, "100", "6", "20E-9")
+pg.generate_pulses(instr, "10000", "5", "10E-6")
 
-#saveData.saveData(instr, "testi1.csv")
+
+#MUISTA OTTAA POIS PÄÄLTÄ!! Testi1 file kohta täynnä.
+#saveData.saveData(instr, "testi1.csv", "CustomBySlava, pulse, 10 kHz, 5 V, 10E-6 s, mittaus2")
 
 
 
