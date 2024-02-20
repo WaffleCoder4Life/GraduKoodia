@@ -28,14 +28,15 @@ def step_sweep(instr, start_voltage, end_voltage, step_voltage):
     instr.write(":OUTP ON")
 
     
+    print(instr.query(":READ?"))
 
 
     #Trigger sweep and request data
-    instr.write(":INIT")
+    """ instr.write(":INIT")
 
     time.sleep(0.15*(points))
 
-    instr.write(":ABORT")
+    instr.write(":ABORT") """
     
 
 
