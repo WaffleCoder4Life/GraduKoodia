@@ -9,7 +9,7 @@ def voltageSweep(instrument, voltageRange: float, startVoltage_V: float, endVolt
 
     instrument.write(":SOUR:FUNC VOLT")
 
-    range = voltageRange
+    range = 1 #FIXAAAA
     instrument.write(":SOUR:VOLT:RANG " + str(range))  # Set voltage range
     instrument.write(":SENS:CURR:PROT " + str(currentLimit_A)) # Set the maximum current limit
 

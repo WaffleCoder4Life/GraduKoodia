@@ -1,7 +1,7 @@
 import pyvisa
 
 
-def generatePulses(instrument, frequency_Hz : str, amplitude_V : str, pulseWidth_s : str) -> str:
+def generatePulses(instrument, frequency_Hz: float, amplitude_V: float, pulseWidth_s: float) -> str:
     """Generates pulses on KeySight oscilloscope, and returns used settings as a string.\n
     Frequency between 100 mHz and 10 MHz, minimum pulse width between 20 ns."""
 
