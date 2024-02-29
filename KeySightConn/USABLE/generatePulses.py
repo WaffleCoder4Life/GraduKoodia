@@ -1,5 +1,4 @@
 import pyvisa
-import keyboard
 
 
 def generatePulses(instrument, frequency_Hz : str, amplitude_V : str, pulseWidth_s : str) -> str:
