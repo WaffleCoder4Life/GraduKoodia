@@ -2,12 +2,12 @@ import time
 
 
 
-def manualSweep(instr, start_voltage, end_voltage, sweep_points, current_limit, tiedosto):
+def voltageSweep(instr, start_voltage, end_voltage, sweep_points, current_limit, tiedosto):
 
     instr.write(":SOUR:FUNC VOLT")
 
     #MUISTA MUUTTAA
-    range = 1
+    range = 1000
     instr.write(":SOUR:VOLT:RANG "+str(range))  # Set voltage range
     # Set the maximum current limit
     instr.write(":SENS:CURR:PROT "+str(current_limit))

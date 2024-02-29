@@ -16,18 +16,18 @@ instr.write("*IDN?")
 
 
 #FACTORY RESET TARVITTAESSA
-instr.write("*RST")
+#instr.write("*RST")
 
 
 # Configure Sourcemeter settings (example: set voltage source mode)
-instr.write(":SOUR:FUNC VOLT")
-instr.write(":SOUR:VOLT:RANG 1")  # Set voltage range
-instr.write(":SOUR:VOLT 0.1")     # Set voltage
+#instr.write(":SOUR:FUNC VOLT")
+#instr.write(":SOUR:VOLT:RANG 1")  # Set voltage range
+#instr.write(":SOUR:VOLT 0.1")     # Set voltage
 
 
 # Set the maximum current limit
-current_limit = 0.001  # Set the desired current limit in amperes
-instr.write(":SENS:CURR:PROT "+str(current_limit))
+#current_limit = 0.001  # Set the desired current limit in amperes
+#instr.write(":SENS:CURR:PROT "+str(current_limit))
 
 """ print(float(instr.query(":SOUR:VOLT?"))) """
 
