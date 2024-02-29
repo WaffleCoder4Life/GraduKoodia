@@ -1,8 +1,5 @@
 import pyvisa as visa
-import voltageSweep as vs
-import stepSweep as ss
-import stepSweep2 as ss2
-import stepSweepManual as manual
+import voltageSweep as manual
 
 
 
