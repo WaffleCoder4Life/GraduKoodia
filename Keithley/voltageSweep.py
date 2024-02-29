@@ -2,44 +2,38 @@ import time
 
 
 
-def voltageSweep(instr, start_voltage, end_voltage, sweep_points, current_limit, tiedosto):
-
-    instr.write(":SOUR:FUNC VOLT")
-
-    #MUISTA MUUTTAA
-    range = 1000
-    instr.write(":SOUR:VOLT:RANG "+str(range))  # Set voltage range
-    # Set the maximum current limit
-    instr.write(":SENS:CURR:PROT "+str(current_limit))
+def voltageSweep(instrument, voltageRange: float, startVoltage_V: float, endVoltage_V: float, sweepPoints: int, currentLimit_A: float, fileName: str, testID: str):
+    """Performs voltage step sweep with given settings, and saves voltage, current and resistance to 'fileName'.csv.\n
+    Data is appended to file and testID is written to the beginning of dataset."""
 
 
-    voltage_step = (end_voltage-start_voltage)/sweep_points
+    instrument.write(":SOUR:FUNC VOLT")
+
+    range = voltageRange
+    instrument.write(":SOUR:VOLT:RANG " + str(range))  # Set voltage range
+    instrument.write(":SENS:CURR:PROT " + str(currentLimit_A)) # Set the maximum current limit
+
+    voltage_step = (endVoltage_V-startVoltage_V)/sweepPoints
 
     voltage_step = voltage_step / range
-    start_voltage = start_voltage / range
-    end_voltage = end_voltage / range
+    startVoltage_V = startVoltage_V / range
+    endVoltage_V = endVoltage_V / range
 
-    voltage = start_voltage
-
-
-    voltage_data = []
-    current_data = []
-    resistance_data = []
+    voltage = startVoltage_V
     
-    instr.write(":OUTP ON")
+    instrument.write(":OUTP ON")
 
-    
-    with open(tiedosto+".csv", "a") as file:
-        while voltage < end_voltage:
-            instr.write(":SOUR:VOLT "+str(voltage))  # Set voltage
-            #instr.write(":TRACe:DATA?")
+    with open(fileName + ".csv", "a") as file:
+        file.write("\n" + testID + "\n")
+        while voltage < endVoltage_V:
+            instrument.write(":SOUR:VOLT " + str(voltage))  # Set voltage
             time.sleep(0.2)
-            instr.write(":FORM:ELEM VOLT, CURR, RES")
-            file.write(instr.read())
+            instrument.write(":FORM:ELEM VOLT, CURR, RES")
+            file.write(instrument.read())
             
             voltage += voltage_step
 
-    instr.write(":OUTP OFF")
+    instrument.write(":OUTP OFF")
 
         
         
