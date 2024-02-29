@@ -13,8 +13,9 @@ instr = rm.open_resource(list[0])
 instr.write("*IDN?")
 print(instr.read())
 
-set.setDisplay(instr, 4, 5000000, 0.25)
+set.setDisplay(instr, 2, 4, 5000000, 0.25)
+set.setDisplay(instr, 1, 4, 5000000, 0.25)
 
 instr.write(":RUN")
 
-gen.generatePulses(instr, 1, 2, 0.5)
+gen.generatePulses(instr, 1, 3, 0.5)
