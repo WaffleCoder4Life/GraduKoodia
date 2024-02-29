@@ -11,6 +11,7 @@ def setDisplay(instrument, voltageRange_V: float, timeRange_us: float, triggerLe
     instrument.write(":CHANnel1:RANGe " + volt)
     instrument.write(":TIMebase:RANGe " + time + "E-6")
     instrument.write(":TRIGger1:LEVel " + str(triggerLevel_V))
+    instrument.write(":RUN")
 
     settings = "Voltage range: " + str(voltageRange_V) + " V, Time range: " + str(timeRange_us) + " us, Trigger level: " + str(triggerLevel_V) + "V"
 
