@@ -15,4 +15,6 @@ print(instr.read())
 
 set.setDisplay(instr, 4, 5000000, 0.25)
 
+instr.write(":RUN")
+
 gen.generatePulses(instr, 1, 2, 0.5)
