@@ -1,5 +1,5 @@
 import pyvisa as visa
-import setDisplay as sd
+import USABLE.setDisplay as sd
 import countPeaks
 import matplotlib.pyplot as plt
 import numpy as np

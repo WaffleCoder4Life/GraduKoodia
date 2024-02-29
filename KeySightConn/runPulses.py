@@ -1,7 +1,7 @@
 import pyvisa as visa
-import setDisplay as sd
-import pulseGenerator as pg
-import saveData
+import USABLE.setDisplay as sd
+import USABLE.generatePulses as pg
+import USABLE.saveData as saveData
 
 
 rm = visa.ResourceManager()
@@ -14,7 +14,9 @@ print(instr.read())
 
 #sd.setDisplay(instr, 1, 1000, 0.3)
 
-pg.generate_pulses(instr, "10000", "5", "10E-6")
+
+
+pg.generatePulses(instr, "10000", "5", "10E-6")
 
 
 #MUISTA OTTAA POIS PÄÄLTÄ!! Testi1 file kohta täynnä.

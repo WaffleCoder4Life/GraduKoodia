@@ -1,9 +1,9 @@
 import pyvisa as visa
-import setDisplay as sd
+import USABLE.setDisplay as sd
 import plotData
 import countPeaks
-import setDisplay
-import pulseGenerator as pg
+import USABLE.setDisplay as setDisplay
+import USABLE.generatePulses as pg
 import keyboard
 
 
