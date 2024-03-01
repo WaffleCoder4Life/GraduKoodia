@@ -9,23 +9,21 @@ def voltageSweep(instrument, voltageRange: float, startVoltage_V: float, endVolt
 
     instrument.write(":SOUR:FUNC VOLT")
 
-    range = 1 #FIXAAAA
-    instrument.write(":SOUR:VOLT:RANG " + str(range))  # Set voltage range
+    
+    instrument.write(":SOUR:VOLT:RANG " + str(voltageRange))  # Set voltage range
     instrument.write(":SENS:CURR:PROT " + str(currentLimit_A)) # Set the maximum current limit
 
     voltage_step = (endVoltage_V-startVoltage_V)/sweepPoints
 
-    voltage_step = voltage_step / range
-    startVoltage_V = startVoltage_V / range
-    endVoltage_V = endVoltage_V / range
+    
 
     voltage = startVoltage_V
     
     instrument.write(":OUTP ON")
 
-    with open(fileName + ".csv", "a") as file:
-        file.write("\n" + testID + "\n")
-        while voltage < endVoltage_V:
+    with open("./dataCollection/" + fileName + ".csv", "a") as file:
+        file.write(testID + "\n" "U/V, I/A, R/Ohm\n")
+        while voltage <= endVoltage_V:
             instrument.write(":SOUR:VOLT " + str(voltage))  # Set voltage
             time.sleep(0.2)
             instrument.write(":FORM:ELEM VOLT, CURR, RES")

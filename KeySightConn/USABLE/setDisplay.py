@@ -3,7 +3,7 @@
 
 def setDisplay(instrument, chan: int, voltageRange_V: float, timeRange_us: float, triggerLevel_V: float) -> str:
     """Sets voltage and time ranges, and DC trigger level for KeySight oscilloscope's display, 
-    and returns these settings as a string."""
+    and returns these settings as a string. voltageRange allowed values [8mV - 40V]"""
     instrument.write(":TRIGger:SOURce CHANnel" + str(chan))
     instrument.write(":TRIGger:MODE EDGE") #NEEDS TESTING
     instrument.write(":TRIGger:COUPling DC") #NEEDS TESTING
