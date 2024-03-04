@@ -2,7 +2,7 @@
 
 
 def readData(fileName: str, dataType: int)->list:
-    """Reads the data from .csv file and returns a list. 
+    """Reads the data from .csv file and returns a float type list. 
     dataType allowed arguments [0, 1, 2] to determine which datalist 
     is returned [Voltage, Current, Resistance]"""
 
@@ -20,6 +20,6 @@ def readData(fileName: str, dataType: int)->list:
         dataList = []
         for element in rows:
             rowAsList = element.split(",")
-            dataList.append(rowAsList[dataType])
+            dataList.append(float(rowAsList[dataType]))
         
         return dataList
