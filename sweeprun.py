@@ -26,9 +26,9 @@ osc.write(":RUN")
 
 
 
-sv.setVoltage(sour, 1000, 10, 0.0150)
+#sv.setVoltage(sour, 1000, 10, 0.0150)
 
-vs.voltageSweep(sour, 1000, 20, 30, 100, 0.0150, "test3_1_3_24", "BoxNoCover")
+vs.voltageSweep(sour, 1000, 23, 27, 100, 0.0150, "paskanimitilalle", "asd")
 
 
 

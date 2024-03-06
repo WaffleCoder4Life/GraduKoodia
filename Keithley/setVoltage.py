@@ -14,5 +14,6 @@ def setVoltage(instrument, voltageRange: float, voltage_V: float, currentLimit_A
         #voltage = voltage_V / voltageRange
 
         instrument.write(":SOUR:VOLT " + str(voltage_V))  # Set voltage
+        
 
         instrument.write(":OUTP ON")

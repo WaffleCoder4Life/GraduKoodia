@@ -4,6 +4,7 @@ import KeySightConn.UNUSABLE.plotData as plotData
 import countPeaks
 import KeySightConn.setDisplay as setDisplay
 import KeySightConn.generatePulses as pg
+import keyboard
 
 
 
