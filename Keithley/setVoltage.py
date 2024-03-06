@@ -2,13 +2,17 @@ import pyvisa as visa
 
 def setVoltage(instrument, voltageRange: float, voltage_V: float, currentLimit_A: float):
 
-    instrument.write(":SOUR:FUNC VOLT")
+    if voltage_V >= 32:
+        print("Voltage limit reached !!!")
 
-    instrument.write(":SOUR:VOLT:RANG " + str(voltageRange))  # Set voltage range
-    instrument.write(":SENS:CURR:PROT " + str(currentLimit_A)) # Set the maximum current limit
+    else:
+        instrument.write(":SOUR:FUNC VOLT")
 
-    #voltage = voltage_V / voltageRange
+        instrument.write(":SOUR:VOLT:RANG " + str(voltageRange))  # Set voltage range
+        instrument.write(":SENS:CURR:PROT " + str(currentLimit_A)) # Set the maximum current limit
 
-    instrument.write(":SOUR:VOLT " + str(voltage_V))  # Set voltage
+        #voltage = voltage_V / voltageRange
 
-    instrument.write(":OUTP ON")
+        instrument.write(":SOUR:VOLT " + str(voltage_V))  # Set voltage
+
+        instrument.write(":OUTP ON")

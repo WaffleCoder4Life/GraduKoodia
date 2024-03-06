@@ -1,4 +1,4 @@
-import readData as rd
+import dataAnalz.readSourceMeterData as rd
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -14,7 +14,7 @@ current2 = [float(curr) for curr in rd.readData("./dataCollection/test2_1_3_24",
 
 
 #Tää riittää kun fixas floatiks suoraan readDatan
-current3 = rd.readData("./dataCollection/test3_1_3_24", 1)
+current3 = rd.readSourceMeterData("./dataCollection/test3_1_3_24", 1)
 
 currAvag = [float((cur1+cur2)/2) for (cur1,cur2) in zip(current,current2)]
 

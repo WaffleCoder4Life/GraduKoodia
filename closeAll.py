@@ -1,5 +1,5 @@
 import Keithley.close as kclose
-import KeySightConn.USABLE.close as uclose
+import KeySightConn.close as uclose
 import pyvisa as visa
 
 rm = visa.ResourceManager()

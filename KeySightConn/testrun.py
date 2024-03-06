@@ -1,10 +1,10 @@
 import pyvisa as visa
-import USABLE.setDisplay as sd
-import plotData
+import KeySightConn.setDisplay as sd
+import KeySightConn.UNUSABLE.plotData as plotData
 import countPeaks
-import USABLE.setDisplay as setDisplay
-import USABLE.generatePulses as pg
-import keyboard
+import KeySightConn.setDisplay as setDisplay
+import KeySightConn.generatePulses as pg
+
 
 
 
