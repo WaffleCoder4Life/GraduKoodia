@@ -6,6 +6,7 @@ import KeySightConn.setDisplay as set
 import Keithley.voltageSweep as vs
 import keyboard
 import time
+import KeySightConn.saveImage as si
 
 
 print("Test connection")
@@ -24,14 +25,20 @@ set.setDisplay(osc, 2, 20, 1, 1)
 
 osc.write(":RUN")
 
-gen.generatePulses(osc, 5, 6, 0.000000125)
+gen.generatePulses(osc, 5, 6.5, 0.000000125)
 
 
 sv.setVoltage(sour, 1000, 27, 0.0150)
 
-#while True:
-#    if keyboard.is_pressed("q"):
-#        break
-#    time.sleep(0.1)
-#    sour.write(":FORM:ELEM CURR")
-#    sour.read()
+
+i = 1
+while True:
+    if keyboard.is_pressed("q"):
+        break
+    if keyboard.is_pressed("s"):
+        si.saveImage(osc, "pulsetest2_6.5V125ns" + str(i))
+        save.saveData(osc, "pulsetest2_6.5V125ns" + str(i), "Pulse 6.5 V, 125 ns")
+        i += 1
+    time.sleep(0.1)
+    sour.write(":FORM:ELEM CURR")
+    sour.read()
