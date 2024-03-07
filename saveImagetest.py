@@ -23,9 +23,8 @@ osc.write(":RUN")
 #sv.setVoltage(sour, 1000, 27, 0.0150)
 
 
-osc.write(":HARDcopy:INKSaver OFF")
+osc.write(":HARDcopy:INKSaver OFF") #darkmode
 sDisplay = osc.query_binary_values(":DISPlay:DATA? PNG", datatype = "B", header_fmt = "ieee", container = bytes)
-#sDisplay = osc.read()
 # Save display data values to file.
 f = open("./Photos/testikuva1.png", "wb")
 f.write(sDisplay)

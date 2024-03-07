@@ -21,11 +21,13 @@ print(osc.read())
 
 
 set.setDisplay(osc, 1, 0.2, 2, 0.03)
-set.setDisplay(osc, 2, 20, 1, 1)
+#set.setDisplay(osc, 2, 20, 0.01, 1)
+set.setDisplay(osc, 2, 20, 1000000, 1)
 
 osc.write(":RUN")
 
-gen.generatePulses(osc, 5, 6.5, 0.000000125)
+#gen.generatePulses(osc, 5, 7, 0.000000100)
+gen.generatePulses(osc, 0.5, 5, 1)
 
 
 sv.setVoltage(sour, 1000, 27, 0.0150)
@@ -36,8 +38,8 @@ while True:
     if keyboard.is_pressed("q"):
         break
     if keyboard.is_pressed("s"):
-        si.saveImage(osc, "pulsetest2_6.5V125ns" + str(i))
-        save.saveData(osc, "pulsetest2_6.5V125ns" + str(i), "Pulse 6.5 V, 125 ns")
+        si.saveImage(osc, "darkcount" + str(i))
+        save.saveData(osc, "darkcount" + str(i), "inside setup room temp")
         i += 1
     time.sleep(0.1)
     sour.write(":FORM:ELEM CURR")

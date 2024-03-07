@@ -3,7 +3,7 @@ import time
 
 
 def voltageSweep(instrument, voltageRange: float, startVoltage_V: float, endVoltage_V: float, sweepPoints: int, currentLimit_A: float, fileName: str, testDescribtion: str):
-    """Performs voltage step sweep with given settings, and saves the setting and measured voltage, current and resistance to 'fileName'.csv.\n
+    """Performs voltage step sweep with given settings, and saves the setting and measured voltage, current and resistance to 'fileName'.csv to DataCollection folder\n
     Data is appended to file and test describtion is written to the beginning of dataset."""
 
 

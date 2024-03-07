@@ -28,7 +28,7 @@ osc.write(":RUN")
 
 #sv.setVoltage(sour, 1000, 10, 0.0150)
 
-vs.voltageSweep(sour, 1000, 23, 27, 100, 0.0150, "paskanimitilalle", "asd")
+vs.voltageSweep(sour, 1000, 22, 28, 100, 0.0150, "voltageSweep1", "Demonstartion for Ottos presentation")
 
 
 
