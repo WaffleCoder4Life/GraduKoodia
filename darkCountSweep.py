@@ -17,4 +17,4 @@ def darkCountSweep(instrument, voltageRange_V: float, startVoltage_V: float, sto
 
     with open("./dataCollection/" + fileName + ".csv", "a") as file:
         file.write(testDescription + "\n Sweep settings: Start voltage: "+str(startVoltage_V)+" V, end voltage:  "+str(stopVoltage_V)+" V, sweep points: "+str(sweepPoints)+", current limit: "+str(currentLimit_A)+" A\n t/s, U/V\n")
-        
+        i = 1
