@@ -1,0 +1,29 @@
+# call <filename> <hystfilename> <heating formula $1*$3 or $2*$4>
+
+reset
+set dummy R
+set xlabel "Heating [W]"
+set ylabel "T [K]"
+set key right center
+set style data linespoints
+set pointsize 0.1
+
+#RIVAC calib is of form T(R) = a*log(R/b)**(-c), with R in kOhm, T in mK
+# For new chips: a = 146.191, b = 0.175087, c = 5.93943
+# For bolos same formula
+# Bolo A:
+a1 = 31.548682
+b1 = 0.156462
+c1 = 3.307470
+B1(R) = a1*log(R/b1)**(-c1)
+# Bolo B:
+a2 = 33.505082
+b2 = 0.171035
+c2 = 3.153734
+B2(R) = a2*log(R/b2)**(-c2)
+
+
+# Plot T(P), T from T(R)
+plot ARG1 u (@ARG3):(B1($3/$1)) lc rgb"red" title "Bolometer A heating",\
+"" u (@ARG3):(B2($4/$2)) lc rgb"blue" title "Bolometer B heating"
+if(ARG2 ne ""){replot ARG2 u (@ARG3):(B1($3/$1)) lc rgb"dark-green" title "Bolometer A cooling","" u (@ARG3):(B2($4/$2)) lc rgb"orange" title "Bolometer B cooling"}

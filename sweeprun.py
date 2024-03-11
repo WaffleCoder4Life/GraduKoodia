@@ -6,6 +6,7 @@ import Keithley.voltageSweep as vs
 import Keithley.setVoltage as sv
 import dataAnalz.readSourceMeterData as rd
 import matplotlib.pyplot as plt
+import keyboard
 
 
 
@@ -14,24 +15,24 @@ rm = visa.ResourceManager()
 list = rm.list_resources()
 print(list)
 
-osc = rm.open_resource(list[0])
-sour = rm.open_resource(list[2])
-osc.write("*IDN?")
-print(osc.read())
+#osc = rm.open_resource(list[0])
+sour = rm.open_resource(list[1])
+#osc.write("*IDN?")
+#print(osc.read())
 
-set.setDisplay(osc, 1, 0.008, 0.5, 0)
-set.setDisplay(osc, 2, 24, 5000000, 1)
+#set.setDisplay(osc, 1, 0.008, 0.5, 0)
+#set.setDisplay(osc, 2, 24, 5000000, 1)
 
-osc.write(":RUN")
-
-
-fileName = "testsweepcold5"
+#osc.write(":RUN")
 
 
+fileName = "11032024sweep_down_60mALED_wide"
 
-#sv.setVoltage(sour, 1000, 10, 0.0150)
 
-vs.voltageSweep(sour, 1000, 20, 23.5, 100, 0.0150, fileName, "")
+
+#sv.setVoltage(sour, 50, 24, 0.0150)
+
+vs.voltageSweep(sour, 1000, 19.5, 23, 0.0150, fileName, "", True)
 #vs.voltageSweep(sour, 1000, 19, 23, 100, 0.0150, "backwords", "After nitrogen cooling, Dark, BIAS 18V-24V", True)
 
 
@@ -52,6 +53,7 @@ plt.scatter(voltageup, currentup, s=2, c="red", marker="d")
 #plt.scatter(voltagedn, currentdn, s=2, c="green", marker="s")
 plt.xlabel("$U$ / V")
 plt.ylabel("$I$ / $\\mu$A")
+#plt.ylim(-0.5, 0.5)
 #plt.title("")
 plt.tight_layout()
 plt.savefig("./dataCollection/Photos/" + fileName)

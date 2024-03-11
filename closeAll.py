@@ -7,7 +7,7 @@ list = rm.list_resources()
 
 
 osc = rm.open_resource(list[0])
-sour = rm.open_resource(list[2])
+sour = rm.open_resource(list[1])
 
 
 kclose.close(sour)

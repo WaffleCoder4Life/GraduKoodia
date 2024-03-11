@@ -1,0 +1,43 @@
+reset
+
+set term wxt enhanced
+set logscale y
+set xlabel "T_{SC} [K]"
+set ylabel "R_{bolo} [kOhm]"
+
+set samples 100000
+
+#RIVAC calib is of form T(R) = a*log(R/b)**(-c), with R in kOhm, T in mK
+# For new chips: a = 146.191, b = 0.175087, c = 5.93943
+set dummy R
+a = 146.191
+b = 0.175087
+c = 5.93943
+T(R) = a*log(R/b)**(-c)
+
+
+# Bolo A fit
+f(R) = a2*log(R/b2)**(-c2)
+a2 = 31.5
+b2 = 0.156
+c2 = 3.31
+fit f(R) "Tempcalibplus1K.dat" u (($3-$4)/($2*2E6)):(T($1)) via a2,b2,c2
+
+# Bolo B fit
+g(R) = a3*log(R/b3)**(-c3)
+a3 = 32.3
+b3 = 0.174
+c3 = 3.13
+fit g(R) "Tempcalibplus1K.dat" u (($6-$7)/($5*2E6)):(T($1)) via a3,b3,c3
+
+
+set label 1 sprintf("T(R) = a*log(R/b)^{-c}") at graph 0.4,0.75
+set label 2 sprintf("Bolo A: a = %.6f, b = %.6f, c = %.6f",a2,b2,c2) at graph 0.4,0.69
+set label 3 sprintf("Bolo B: a = %.6f, b = %.6f, c = %.6f",a3,b3,c3) at graph 0.4,0.63
+
+
+# Plot T(P), T from T(R)
+plot [0:1.2] "Tempcalibplus1K.dat" u (T($1)):(($3-$4)/($2*2E6)) lc rgb"red" ps 0.8 title "Bolometer A", "dummyR.dat" u (f($1)):1 w lines title "Bolo A fit",\
+"Tempcalibplus1K.dat" u (T($1)):(($6-$7)/($5*2E6)) lc rgb"blue" ps 0.8 title "Bolometer B", "dummyR2.dat" u (g($1)):1 w lines title "Bolo A fit"
+
+
