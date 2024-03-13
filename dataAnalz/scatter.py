@@ -1,23 +1,26 @@
-import readSourceMeterData as rd
-import readOscilloscopeData as readosc
+import readSourceMeterDataFine as rsf
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.optimize import curve_fit
-from sympy.solvers import solve
 from sympy import Symbol
 
 
-voltageup = rd.readSourceMeterData("./dataCollection/sweepasdasdasdasd", 0)
-currentup = [1000*point for point in rd.readSourceMeterData("./dataCollection/sweepasdasdasdasd", 1)]
+voltage = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_1mALED", 0)
 
-#voltagedn = rd.readSourceMeterData("./dataCollection/backwords", 0)
-#currentdn = [1000*point for point in rd.readSourceMeterData("./dataCollection/backwords", 1)]
+laserIntensity = ["1mA", "5mA", "10mA"]
+colours = ["gold", "darkorange", "red"]
 
-plt.scatter(voltageup, currentup, s=2, c="red", marker="d")
-#plt.scatter(voltagedn, currentdn, s=2, c="green", marker="s")
+d = {}
+for amps in laserIntensity:
+    d["LED {0}".format(amps)] = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_{0}LED".format(amps), 1)
+
+i = 0
+for key in d:
+    plt.scatter(voltage, d[key], s=2, c=colours[i], marker="d", label = str(key))
+    i+=1
+
 plt.xlabel("$U$ / V")
-plt.ylabel("$I$ / mA")
-#plt.title("")
+plt.ylabel("$I$ / $\\mathrm{\\mu}$A")
+plt.legend()
 plt.tight_layout()
-plt.savefig("./dataCollection/Photos/asdasdasdasd")
+plt.savefig("./dataCollection/Photos/130324IVcurvesFINE")
 plt.show()
