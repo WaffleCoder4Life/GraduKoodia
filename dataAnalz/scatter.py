@@ -4,14 +4,20 @@ import numpy as np
 from sympy import Symbol
 
 
-voltage = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_1mALED", 0)
+voltage = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_1mALED", 0) #SAME VOLTAGE VALUE FOR ALL
 
 laserIntensity = ["1mA", "5mA", "10mA"]
 colours = ["gold", "darkorange", "red"]
 
+
+#CREATES DICTIONARY WITH KEY - CURRENT LIST.
 d = {}
 for amps in laserIntensity:
-    d["LED {0}".format(amps)] = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_{0}LED".format(amps), 1)
+    d["LED {0}".format(amps)] = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_{0}LED".format(amps), 1) #SAVE CURRENT LIST IN DICTIONARY
+
+
+
+
 
 i = 0
 for key in d:

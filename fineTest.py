@@ -38,10 +38,10 @@ sour = rm.open_resource(list[1])
 
 
 
-reset = 1
+reset = 0
 singleTest = 0
 sweepTest = 1
-plotSweep = 1
+plotSweep = 0
 
 if reset:
     #RUN THESE AFTER START OR GET FUCKED
@@ -58,7 +58,7 @@ if singleTest:
     #sour.write(":SOUR:VOLT:ILIM?")
     #print(sour.read())
     sour.write(":SENS:RANG 0.00001") #SET CURRENT MEASURE RANGE
-    sour.write(":SOUR:VOLT 8") #SET VOLTAGE
+    sour.write(":SOUR:VOLT 6") #SET VOLTAGE
     sour.write(":SOUR:VOLT:STAT ON") #OUTPUT ON 
     sour.write(":FORM:ELEM READ, VSO") #CURRENT/RESISTANCE, TIME FROM SWITCH ON, STATUS (idk), SOURCE VOLTAGE
     sour.write(":FORM:DATA ASCii") #CHOOSE DATA FORM
@@ -71,10 +71,10 @@ if singleTest:
     sour.close()
 
 
-filename = "13032024_FINE_sweep_up_10mALED"
+filename = "14032024_FINE_sweep_up_1mALED_4"
 if sweepTest:
     print("Executing sweep test...")
-    vsf.voltageSweepFine(sour, 50, 19, 23, 0.000025, filename, "Keithley6487, temperature 16620 kOhm, IV-curves with 0.01 mV voltage steps.")
+    vsf.voltageSweepFine(sour, 50, 19, 23, 2.5E-6, filename, "Keithley6487, temperature 16500 kOhm, IV-curve for 1 mA, voltage step 0.05")
     sour.close()
 
 
@@ -82,12 +82,12 @@ if plotSweep:
     for volt in rd.readSourceMeterDataFine("./dataCollection/" + filename, 1):
         print("original "+str(volt))
     voltageup = rd.readSourceMeterDataFine("./dataCollection/" + filename, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO SOURCE
-    currentup = [10**(6)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + filename, 1)]
+    currentup = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + filename, 1)]
     for volt in voltageup:
         print(volt)
     plt.scatter(voltageup, currentup, s=2, c="red", marker="d")
     plt.xlabel("$U$ / V")
-    plt.ylabel("$I$ / $\\mu$A")
+    plt.ylabel("$I$ / nA")
     plt.tight_layout()
     plt.savefig("./dataCollection/Photos/" + filename)
     plt.show()
