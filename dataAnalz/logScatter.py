@@ -2,7 +2,7 @@ import readSourceMeterDataFine as rsf
 import matplotlib.pyplot as plt
 import numpy as np
 
-derivative = 1
+derivative = 0
 
 voltage = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_1mALED", 0)
 
@@ -12,7 +12,7 @@ colours = ["gold", "darkorange", "red"]
 d = {}
 if derivative == 0:
     for amps in laserIntensity:
-        d["LED {0}".format(amps)] = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_{0}LED".format(amps), 1)
+        d["LED {0}".format(amps)] = [1E6 * point for point in rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_{0}LED".format(amps), 1)]
 elif derivative == 1:
     for amps in laserIntensity:
         read1 = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_{0}LED".format(amps), 1)
@@ -42,9 +42,10 @@ if derivative == 0:
     plt.xlabel("$U$ / V")
     plt.ylabel("$I$ / $\\mathrm{\\mu}$A")
     plt.yscale("log")
+    plt.ylim(1E-5,)
     plt.legend()
     plt.tight_layout()
-    plt.savefig("./dataCollection/Photos/130324IVcurvesFINElog")
+    plt.savefig("./dataCollection/Photos/130324IVcurvesFINElog2")
     
 else:
     i = 0
@@ -56,6 +57,6 @@ else:
     plt.legend()
     plt.tight_layout()
     plt.savefig("./dataCollection/Photos/130324IVcurvesFINEderiv")
-#    plt.ylim(-1000, 1000)
+    #plt.ylim(-1000, 1000)
 
 plt.show()

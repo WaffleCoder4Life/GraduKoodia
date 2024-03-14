@@ -1,5 +1,6 @@
 import pyvisa as visa
 import Keithley6487.voltageSweepFine as vsf
+import Keithley6487.setVoltageFine as setv
 import time
 import keyboard
 import matplotlib.pyplot as plt
@@ -31,7 +32,7 @@ print(list)
 #    except:
 #        pass
 
-sour = rm.open_resource(list[1])
+sour = rm.open_resource(list[2])
 
 #sour.write("*IDN?")
 #print(sour.read())
@@ -40,8 +41,9 @@ sour = rm.open_resource(list[1])
 
 reset = 0
 singleTest = 0
-sweepTest = 1
+sweepTest = 0
 plotSweep = 0
+closeAfter = 1
 
 if reset:
     #RUN THESE AFTER START OR GET FUCKED
@@ -51,15 +53,16 @@ if reset:
 
 if singleTest:
     print("Executing single test...")
-    sour.write(":SOUR:VOLT:RANG 50")  # Set voltage range, 10 V, 50 V, 100 V
+    #sour.write(":SOUR:VOLT:RANG 50")  # Set voltage range, 10 V, 50 V, 100 V
     #sour.write(":SOUR:VOLT:RANG?")
     #print(sour.read())
-    sour.write(":SOUR:VOLT:ILIM 2.5e-3") #SET CURRENT LIMIT
+    #sour.write(":SOUR:VOLT:ILIM 2.5e-3") #SET CURRENT LIMIT
     #sour.write(":SOUR:VOLT:ILIM?")
     #print(sour.read())
     sour.write(":SENS:RANG 0.00001") #SET CURRENT MEASURE RANGE
-    sour.write(":SOUR:VOLT 6") #SET VOLTAGE
-    sour.write(":SOUR:VOLT:STAT ON") #OUTPUT ON 
+    #sour.write(":SOUR:VOLT 24") #SET VOLTAGE
+    #sour.write(":SOUR:VOLT:STAT ON") #OUTPUT ON 
+    setv.setVoltageFine(sour, 50, 24, 2.5e-3)
     sour.write(":FORM:ELEM READ, VSO") #CURRENT/RESISTANCE, TIME FROM SWITCH ON, STATUS (idk), SOURCE VOLTAGE
     sour.write(":FORM:DATA ASCii") #CHOOSE DATA FORM
     sour.write(":INIT") #TRIGGER MEASUREMENT
@@ -67,24 +70,23 @@ if singleTest:
     sour.write(":SENS:DATA?") #ASK FOR DATA
     data = sour.read() #READ DATA
     print(data)
-    sour.write(":SOUR:VOLT:STAT OFF") #OUTPUT OFF
-    sour.close()
+    
 
 
-filename = "14032024_FINE_sweep_up_1mALED_4"
+filename = "14032024_FINE_sweep_up_1mALED_1"
 if sweepTest:
     print("Executing sweep test...")
     vsf.voltageSweepFine(sour, 50, 19, 23, 2.5E-6, filename, "Keithley6487, temperature 16500 kOhm, IV-curve for 1 mA, voltage step 0.05")
     sour.close()
 
 
+if closeAfter:
+    sour.write(":SOUR:VOLT:STAT OFF") #OUTPUT OFF
+    sour.close()
+
 if plotSweep:
-    for volt in rd.readSourceMeterDataFine("./dataCollection/" + filename, 1):
-        print("original "+str(volt))
     voltageup = rd.readSourceMeterDataFine("./dataCollection/" + filename, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO SOURCE
     currentup = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + filename, 1)]
-    for volt in voltageup:
-        print(volt)
     plt.scatter(voltageup, currentup, s=2, c="red", marker="d")
     plt.xlabel("$U$ / V")
     plt.ylabel("$I$ / nA")

@@ -13,7 +13,7 @@ colours = ["gold", "darkorange", "red"]
 #CREATES DICTIONARY WITH KEY - CURRENT LIST.
 d = {}
 for amps in laserIntensity:
-    d["LED {0}".format(amps)] = rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_{0}LED".format(amps), 1) #SAVE CURRENT LIST IN DICTIONARY
+    d["LED {0}".format(amps)] = [1E6 * point for point in rsf.readSourceMeterDataFine("dataCollection/13032024_FINE_sweep_up_{0}LED".format(amps), 1)] #SAVE CURRENT LIST IN DICTIONARY
 
 
 
@@ -28,5 +28,5 @@ plt.xlabel("$U$ / V")
 plt.ylabel("$I$ / $\\mathrm{\\mu}$A")
 plt.legend()
 plt.tight_layout()
-plt.savefig("./dataCollection/Photos/130324IVcurvesFINE")
+plt.savefig("./dataCollection/Photos/140324IVcurvesFINE")
 plt.show()
