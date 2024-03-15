@@ -7,8 +7,8 @@ from matplotlib.pyplot import cm
 
 #AVERAGE OF 10 SINGLE COUNTS IN ~1K WITH 24 V BIAS
 
-#fig, (ax1, ax2) = plt.subplots(2, 1)
-colors = cm.get_cmap("YlOrRd")
+fig, (ax1, ax2) = plt.subplots(2, 1)
+ax1.set_prop_cycle('color',[plt.cm.jet(i) for i in np.linspace(0, 1, 10)])
 
 #SAVE DATASETS FROM 10 DARKCOUNTS TO A LIST AND CHANGES V TO mV
 #SCATTERPLOT OF ALL DATASETS WITH us TIME AXIS
@@ -17,7 +17,7 @@ datasets = []
 while i <= 10:
     tempor = [1E3 * point for point in rod.readOscilloscopeData("15032024/darkcount{0}".format(str(i)), 1)]
     datasets.append(tempor)
-    plt.plot([1E6 * point for point in rod.readOscilloscopeData("15032024/darkcount{0}".format(str(i)), 0)], tempor)
+    ax1.plot([1E6 * point for point in rod.readOscilloscopeData("15032024/darkcount{0}".format(str(i)), 0)], tempor)
     i += 1
 
 print(len(tempor))
@@ -37,12 +37,11 @@ print(BGcorrection)
 pulseaveragetemp = av.averageData(10, [dataset[950:1600] for dataset in datasets])
 pulseaverage = [point - BGcorrection for point in pulseaveragetemp]
 
-#ax2.plot([1E6 * point for point in rod.readOscilloscopeData("15032024/darkcount1", 0)[:650]], pulseaverage, c="black")
-#ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
-#ax1.set_ylabel("$U$ / mV")
-#ax2.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
-#ax2.set_ylabel("$U$ / mV")
+ax2.plot([1E6 * point for point in rod.readOscilloscopeData("15032024/darkcount1", 0)[:650]], pulseaverage, c="black")
+ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
+ax1.set_ylabel("$U$ / mV")
+ax2.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
+ax2.set_ylabel("$U$ / mV")
 #plt.set_cmap(colors)
-plt.set_cmap(colors)
-plt.tight_layout()
+fig.tight_layout()
 plt.show()
