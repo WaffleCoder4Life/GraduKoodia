@@ -14,7 +14,7 @@ def voltageSweepFine(instrument, voltageRange: float, startVoltage_V: float, end
         today += dateAsList[j]
         j -= 1
     #Check if filename taken
-    path = "./dataCollection/"+str(today)+str(fileName)+".csv"
+    path = "./dataCollection/"+str(today)+"/"+str(fileName)+".csv"
     if os.path.isfile(path):
         print("Filename taken (csv)")
         choice = input("Do you want to override? y/n")
@@ -30,7 +30,7 @@ def voltageSweepFine(instrument, voltageRange: float, startVoltage_V: float, end
         #instrument.write(":SENS:CURR:RANG 1E-5") #set current measurement range
 
         
-        voltage_step = 0.05 #SMALLEST ALLOWED VALUE 0.001 FOR 50 V RANGE
+        voltage_step = 0.01 #SMALLEST ALLOWED VALUE 0.001 FOR 50 V RANGE
 
         instrument.write(":SENS:RANG 0.00001")
         

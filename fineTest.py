@@ -40,9 +40,9 @@ sour = rm.open_resource(list[2])
 
 
 reset = 1
-singleTest = 1
-sweepTest = 0
-plotSweep = 0
+singleTest = 0
+sweepTest = 1
+plotSweep = 1
 closeAfter = 0
 
 if reset:
@@ -73,12 +73,12 @@ if singleTest:
     
 
 
-filename = "10mAsweep"
+filename = "25uA_sweep"
 dateFolder = "15032024"
 
 if sweepTest:
     print("Executing sweep test...")
-    vsf.voltageSweepFine(sour, 50, 19, 23, 2.5E-6, filename, "Keithley6487, temperature 1.735 kOhm, IV-curve for 10 mA, voltage step 0.05")
+    vsf.voltageSweepFine(sour, 50, 20, 26.4, 2.5E-6, filename, "Keithley6487, temperature 1.666 kOhm, IV-curve for 25 uA, voltage step 0.01")
     sour.close()
 
 
