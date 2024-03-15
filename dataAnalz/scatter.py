@@ -1,16 +1,17 @@
 import readSourceMeterDataFine as rsf
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
 from sympy import Symbol
 
 #Write all different laserIntensities to list and same amount of colors for plotting. 'today' needs to be changed (different file locations for each day)
 
  
-laserIntensity = ["50uA", "100uA", "200uA","500uA", "1mA", "5mA", "10mA"]
+laserIntensity = ["25uA", "50uA", "100uA", "200uA","500uA", "1mA", "5mA", "10mA"]
 
 
 
-#colours = ["indigo","blue","lightseagreen","green","gold", "darkorange", "red"]
+colours = ["indigo","blue","lightseagreen","green","yellowgreen","gold", "darkorange", "red"]
 
 #CHANGE PATH NAME BY CHANGING DATE
 today = "15032024"
@@ -32,10 +33,10 @@ for amps in laserIntensity:
 
 i = 0
 for key1, key2 in zip(curdic, voltdic):
-    plt.scatter(voltdic[key2], curdic[key1], s=2, marker="d", label = str(key1))
+    plt.scatter(voltdic[key2], curdic[key1], s=2, marker="d", c=colours[i], cmap="inferno", label = str(key1))
     i+=1
 
-plt.set_cmap("inferno")
+
 plt.xlabel("$U$ / V")
 plt.ylabel("$I$ / $\\mathrm{\\mu}$A")
 plt.legend()
