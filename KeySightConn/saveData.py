@@ -1,13 +1,20 @@
 import numpy as np
 import os
-
+from datetime import date
 
 def saveData(instrument, fileName: str, testDescribtion: str, measSettings: str = ""):
     """Reads binary data from instrument, and formats it to voltages. 
     Appends measurement data and used settings to file 'fileName'.csv. 
     Adds test describtion and settings to beginning of each dataset.\n
     Measurement settings must be defined in program (setDisplay and generatePulses return their settings as str)."""
-    path = "./dataCollection/"+str(fileName)+".csv"
+
+    dateAsList = str(date.today()).split("-")
+    today = ""
+    j = 2
+    while j >= 0:
+        today += dateAsList[j]
+        j -= 1
+    path = "./dataCollection/"+str(today)+"/"+str(fileName)+".csv"
     if os.path.isfile(path):
         print("Filename taken (csv)")
     else:
@@ -21,7 +28,7 @@ def saveData(instrument, fileName: str, testDescribtion: str, measSettings: str 
             #Scales binary data to volts.
             dataList.append((value-128)*yIncrement+yOrigin)
         time = np.linspace(0, timeScale, len(dataList)) #Time axis
-        with open("./dataCollection/"+fileName + ".csv", "a") as file:
+        with open("./dataCollection/"+str(today)+"/"+fileName + ".csv", "a") as file:
             #Saves voltage [V] and time [s] values to file as string separated by ';'.
             i=0
             file.write(testDescribtion + "\n" + "Measurement settings: " + measSettings + "\n"

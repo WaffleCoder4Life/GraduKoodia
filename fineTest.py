@@ -39,11 +39,11 @@ sour = rm.open_resource(list[2])
 
 
 
-reset = 0
-singleTest = 0
+reset = 1
+singleTest = 1
 sweepTest = 0
 plotSweep = 0
-closeAfter = 1
+closeAfter = 0
 
 if reset:
     #RUN THESE AFTER START OR GET FUCKED
@@ -73,10 +73,12 @@ if singleTest:
     
 
 
-filename = "14032024_FINE_sweep_up_1mALED_1"
+filename = "10mAsweep"
+dateFolder = "15032024"
+
 if sweepTest:
     print("Executing sweep test...")
-    vsf.voltageSweepFine(sour, 50, 19, 23, 2.5E-6, filename, "Keithley6487, temperature 16500 kOhm, IV-curve for 1 mA, voltage step 0.05")
+    vsf.voltageSweepFine(sour, 50, 19, 23, 2.5E-6, filename, "Keithley6487, temperature 1.735 kOhm, IV-curve for 10 mA, voltage step 0.05")
     sour.close()
 
 
@@ -85,13 +87,13 @@ if closeAfter:
     sour.close()
 
 if plotSweep:
-    voltageup = rd.readSourceMeterDataFine("./dataCollection/" + filename, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO SOURCE
-    currentup = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + filename, 1)]
+    voltageup = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO THE SOURCE
+    currentup = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
     plt.scatter(voltageup, currentup, s=2, c="red", marker="d")
     plt.xlabel("$U$ / V")
     plt.ylabel("$I$ / nA")
     plt.tight_layout()
-    plt.savefig("./dataCollection/Photos/" + filename)
+    plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename)
     plt.show()
 
 
