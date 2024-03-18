@@ -3,6 +3,8 @@ import averagefrfr as av
 import readOscilloscopeData as rod
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
+import scipy.integrate as integ
+import array
 
 
 #AVERAGE OF 10 SINGLE COUNTS IN ~1K WITH 24 V BIAS
@@ -33,7 +35,12 @@ print(BGcorrection)
 #AVERAGE PULSE DATA FROM ALL DATASETS AND SUBTRACT BG CORRECTION
 pulseaveragetemp = av.averageData(10, [dataset[950:1600] for dataset in datasets])
 pulseaverage = [point - BGcorrection for point in pulseaveragetemp]
+timeavg = [point for point in rod.readOscilloscopeData("15032024/darkcount1", 0)[:650]]
 
+#INTEGRATION USING SIMPSON'S RULE
+pulaver = array.array("f", pulseaverage)
+area = 1E-3 * integ.simps(pulaver, timeavg, dx=1, even="avg")
+print(area)
 
 ax2.plot([1E6 * point for point in rod.readOscilloscopeData("15032024/darkcount1", 0)[:650]], pulseaverage, c="black", label="Average")
 ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
