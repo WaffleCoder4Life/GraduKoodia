@@ -35,11 +35,10 @@ pulseaveragetemp = av.averageData(10, [dataset[950:1600] for dataset in datasets
 pulseaverage = [point - BGcorrection for point in pulseaveragetemp]
 
 
-
 ax2.plot([1E6 * point for point in rod.readOscilloscopeData("15032024/darkcount1", 0)[:650]], pulseaverage, c="black", label="Average")
 ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
 ax1.set_ylabel("$U$ / mV")
-ax1.set_title("$R_{\\mathrm{T}}$=1.666 k$\\Omega$")
+ax1.set_title("$R_{\\mathrm{T}}$=1.666 k$\\Omega$, SiPM bias: 24 V")
 ax2.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
 ax2.set_ylabel("$U$ / mV")
 ax2.legend()
