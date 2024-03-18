@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from array import array
 
-def lnderivativeScatter(fileName: str, 
+def lnDerivativeScatter(fileName: str, 
                         markerSize: str = None, 
                         marker: str = None, 
                         color: str = None) -> dict:
