@@ -12,6 +12,7 @@ laserIntensity = ["25uA", "50uA", "100uA", "200uA","500uA", "1mA", "5mA", "10mA"
 
 
 colours = ["indigo","blue","lightseagreen","green","yellowgreen","gold", "darkorange", "red"]
+colours1 = [cm.inferno(i) for i in np.linspace(0, 1, 10)]
 
 #CHANGE PATH NAME BY CHANGING DATE
 today = "15032024"
@@ -33,7 +34,7 @@ for amps in laserIntensity:
 
 i = 0
 for key1, key2 in zip(curdic, voltdic):
-    plt.scatter(voltdic[key2], curdic[key1], s=2, marker="d", c=colours[i], cmap="inferno", label = str(key1))
+    plt.scatter(voltdic[key2], curdic[key1], s=2, marker="d", color=colours1[i], cmap="inferno", label = str(key1))
     i+=1
 
 

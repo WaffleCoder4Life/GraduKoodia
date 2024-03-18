@@ -21,6 +21,7 @@ def saveData(instrument, fileName: str, testDescribtion: str, measSettings: str 
         timeScale = float(instrument.query(":TIMebase:RANGE?"))
         yIncrement = float(instrument.query(":WAVeform:YINCREMENT?"))
         yOrigin = float(instrument.query("WAVeform:YORIGIN?"))
+        instrument.write("WAV:POIN MAX")
         dataList = []
         #instrument.write(":DIGitize") #The :DIGitize command is a specialized RUN command. Stops when data aqusition is complete.
         values = instrument.query_binary_values(":WAVeform:DATA?", datatype = "B") #The :WAVeform:DATA query returns the binary block of sampled data points transmitted using the IEEE 488.2 arbitrary block data format.

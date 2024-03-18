@@ -40,9 +40,9 @@ sour = rm.open_resource(list[2])
 
 
 reset = 1
-singleTest = 0
-sweepTest = 1
-plotSweep = 1
+singleTest = 1
+sweepTest = 0
+plotSweep = 0
 closeAfter = 0
 
 if reset:
@@ -74,7 +74,7 @@ if singleTest:
 
 
 filename = "25uA_sweep"
-dateFolder = "15032024"
+dateFolder = "18032024" #CHANGE AND CReATE NEW FOLDER TO dataCollection
 
 if sweepTest:
     print("Executing sweep test...")
