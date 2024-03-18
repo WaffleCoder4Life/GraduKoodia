@@ -39,10 +39,10 @@ sour = rm.open_resource(list[2])
 
 
 
-reset = 1
-singleTest = 1
-sweepTest = 0
-plotSweep = 0
+reset = 0
+singleTest = 0
+sweepTest = 1
+plotSweep = 1
 closeAfter = 0
 
 if reset:
@@ -62,7 +62,7 @@ if singleTest:
     sour.write(":SENS:RANG 0.00001") #SET CURRENT MEASURE RANGE
     #sour.write(":SOUR:VOLT 24") #SET VOLTAGE
     #sour.write(":SOUR:VOLT:STAT ON") #OUTPUT ON 
-    setv.setVoltageFine(sour, 50, 24, 2.5e-3)
+    setv.setVoltageFine(sour, 50, 23, 2.5e-3)
     sour.write(":FORM:ELEM READ, VSO") #CURRENT/RESISTANCE, TIME FROM SWITCH ON, STATUS (idk), SOURCE VOLTAGE
     sour.write(":FORM:DATA ASCii") #CHOOSE DATA FORM
     sour.write(":INIT") #TRIGGER MEASUREMENT
@@ -78,7 +78,7 @@ dateFolder = "18032024" #CHANGE AND CReATE NEW FOLDER TO dataCollection
 
 if sweepTest:
     print("Executing sweep test...")
-    vsf.voltageSweepFine(sour, 50, 20, 26.4, 2.5E-6, filename, "Keithley6487, temperature 1.666 kOhm, IV-curve for 25 uA, voltage step 0.01")
+    vsf.voltageSweepFine(sour, 50, 19, 24.5, 2.5E-6, filename, "Keithley6487, temperature 1.136 kOhm, IV-curve for 25 uA, voltage step 0.01")
     sour.close()
 
 
