@@ -20,5 +20,8 @@ if not os.path.exists(pth):
 
     photoPath = pth + "/Photos"
     os.makedirs(photoPath)
+
+    tempPath = pth + "/Temp"
+    os.makedirs(tempPath)
 else:
     print("File already exists!")
