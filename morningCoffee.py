@@ -3,7 +3,7 @@ from datetime import date
 
 #MAKES NEW FOLDER FOR TODAYS SHENANIGANS
 
-parent = "Documents/Tom_Sampsa/GraduKoodia/dataAnalz/dataCollection/"
+parent = "c:Documents/Tom_Sampsa/GraduKoodia/dataAnalz/dataCollection/"
 today = date.today()
 
 day = "{:02d}".format(today.day)
