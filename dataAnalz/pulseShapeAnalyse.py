@@ -6,6 +6,20 @@ import scipy.integrate as integ
 from array import array
 import numpy as np
 
+settings = {
+            "pathNameDate": "18032024",
+            "fileName": "darkcount7K",
+            "numberOfDataSets": 20,
+            "backroundEnd" : 950,
+            
+            "averagePlotName" : "20singlecountAverage7k.png",
+            "pulseAveragePlot": 1,
+            "plotSinglePulse": 0
+}
+
+
+
+
 
 def plotSinglePulse(settings):
     """Use to check that pulse is in the middle"""
@@ -78,21 +92,7 @@ def runAnalyze(settings):
         pulseAveragePlot(settings)
 
 
-settings = {
-            "pathNameDate": "18032024",
-            "fileName": "darkcount7K",
-            "numberOfDataSets": 20,
-            "backroundEnd" : 950,
-            
-            "averagePlotName" : "20singlecountAverage7k.png",
-            "pulseAveragePlot": 1,
-            "plotSinglePulse": 0
 
-
-
-
-
-}
 
 
 

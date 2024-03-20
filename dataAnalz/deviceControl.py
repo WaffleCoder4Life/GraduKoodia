@@ -40,3 +40,39 @@ def saveData(instrument, fileName: str, testDescribtion: str, temp: bool, measSe
             while i < len(dataList):
                 file.write(str(time[i])+";"+str(dataList[i])+"\n")
                 i+=1
+
+
+
+
+#Display settings, Channel range 8 div, timebase range 10 div
+
+
+def setDisplay(instrument, chan: int, voltageRange_V: float, timeRange_s: float, triggerLevel_V: float) -> str:
+    """Sets voltage and time ranges, and DC trigger level for KeySight oscilloscope's display, 
+    and returns these settings as a string. voltageRange allowed values [8mV - 40V]"""
+    instrument.write(":TRIGger:SOURce CHANnel" + str(chan))
+    instrument.write(":TRIGger:MODE EDGE") #NEEDS TESTING
+    instrument.write(":TRIGger:COUPling DC") #NEEDS TESTING
+    instrument.write(":CHANnel" + str(chan) + ":RANGe " + str(voltageRange_V))
+    instrument.write(":TIMebase:RANGe " + str(timeRange_s))
+    instrument.write(":TRIGger:LEVel " + str(triggerLevel_V))
+    instrument.write(":CHANnel" + str(chan) + ":DISPlay 1")
+
+    settings = "Voltage range: " + str(voltageRange_V) + " V, Time range: " + str(timeRange_s) + " s, Trigger level: " + str(triggerLevel_V) + "V"
+
+    return settings
+
+
+
+
+
+
+
+
+def setVoltageFine(instrument, voltageRange: float, voltage_V: float, currentLimit_A: float):
+    """Set bias voltage range, voltage, current limit and turn output ON"""
+
+    instrument.write(":SOUR:VOLT:RANG "+str(voltageRange))  # Set voltage range, 10 V, 50 V, 100 V
+    instrument.write(":SOUR:VOLT:ILIM "+str(currentLimit_A)) #SET CURRENT LIMIT
+    instrument.write(":SOUR:VOLT "+str(voltage_V)) #SET VOLTAGE
+    instrument.write(":SOUR:VOLT:STAT ON") #OUTPUT ON 

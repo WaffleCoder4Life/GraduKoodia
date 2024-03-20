@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 import scipy.integrate as integ
 import array
+""" Takes a numbeOfSets amound of single shot oscilloscope data and counts their average, also reduces backround. Made for pulse shape and counting charge """
+
 
 #ALWAYS CHECK PEAK POSITION AND CHANGE IF NEEDED
 numberOfSets = 20

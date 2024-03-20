@@ -7,7 +7,7 @@ from sympy import Symbol
 #Write all different laserIntensities to list and same amount of colors for plotting. 'today' needs to be changed (different file locations for each day)
 
  
-laserIntensity = ["25uA", "50uA", "100uA", "200uA","500uA", "1mA", "5mA", "10mA"]
+laserIntensity = ["25uA", "50uA", "100uA", "200uA","500uA", "1mA"]
 
 
 
@@ -15,7 +15,7 @@ colours = ["indigo","blue","lightseagreen","green","yellowgreen","gold", "darkor
 colours1 = [cm.inferno(i) for i in np.linspace(0, 1, 10)]
 
 #CHANGE PATH NAME BY CHANGING DATE
-today = "15032024"
+today = "18032024"
 
 #CREATES dICTIONARY WITH KEY - VOLTAGE LIST
 voltdic = {}
@@ -42,5 +42,5 @@ plt.xlabel("$U$ / V")
 plt.ylabel("$I$ / $\\mathrm{\\mu}$A")
 plt.legend()
 plt.tight_layout()
-plt.savefig("./dataCollection/"+today+"/allIVcurves")
+plt.savefig("./dataCollection/"+today+"/Photos/allIVcurves7K")
 plt.show()
