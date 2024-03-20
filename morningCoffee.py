@@ -3,7 +3,7 @@ from datetime import date
 
 #MAKES NEW FOLDER FOR TODAYS SHENANIGANS
 
-parent = "c:Documents/Tom_Sampsa/GraduKoodia/dataAnalz/dataCollection/"
+parent = "C:./dataCollection/"
 today = date.today()
 
 day = "{:02d}".format(today.day)
@@ -11,9 +11,14 @@ month = "{:02d}".format(today.month)
 
 newFolder = day + month + str(today.year)
 
-path = os.path.join(parent, newFolder)
-os.mkdir(path)
 
-ph = "/Photos"
-photoPath = os.path.join(path, ph)
-os.mkdir(photoPath)
+
+pth = parent + newFolder
+
+if not os.path.exists(pth):
+    os.makedirs(pth)
+
+    photoPath = pth + "/Photos"
+    os.makedirs(photoPath)
+else:
+    print("File already exists!")
