@@ -65,7 +65,7 @@ if singleTest:
     sour.write(":SENS:RANG 0.00001") #SET CURRENT MEASURE RANGE
     #sour.write(":SOUR:VOLT 24") #SET VOLTAGE
     #sour.write(":SOUR:VOLT:STAT ON") #OUTPUT ON 
-    setv.setVoltageFine(sour, 50, 24, 2.5e-3)
+    setv.setVoltageFine(sour, 50, 23, 2.5e-3)
     sour.write(":FORM:ELEM READ, VSO") #CURRENT/RESISTANCE, TIME FROM SWITCH ON, STATUS (idk), SOURCE VOLTAGE
     sour.write(":FORM:DATA ASCii") #CHOOSE DATA FORM
     sour.write(":INIT") #TRIGGER MEASUREMENT

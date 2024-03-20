@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pyvisa as visa
 from deviceControl import setDisplay, setVoltageFine, saveData
 import os
-from time import time
+from time import time, sleep
 
 settings = {
     "pathNameDate" : "20032024",
@@ -13,11 +13,11 @@ settings = {
     "biasVoltage" : 24,
     "biasCurrentLimit" : 2.5E-3,
     "timeRange" : 100E-6,
-    "runTimeSeconds" : 10,
+    "runTimeSeconds" : 60,
     "peakHeight" : 0.002,
     "aquireData" : 1,
-    "countPeaks" : 1,
-    "deleteTempAfter" : 1
+    "countPeaks" : 0,
+    "deleteTempAfter" : 0
 
 
 }
@@ -44,45 +44,65 @@ def aquireData(settings):
     runTime = settings["runTimeSeconds"]
     startTime = time()
     i = 1
+    negtime = 0
+    darkCounts = 0
     while (time() - startTime) < runTime:
         osc.write(":TER?")
-        if osc.read() == 1:
-            saveData(osc, settings["fileName"]+str(i), "Temp files for dark count rate", True)
+        trigger = osc.read().strip()
+        before = time()
+        if trigger == "+1":
+            darkCounts += 1
+            
+            #saveData(osc, settings["fileName"]+str(i), "Temp files for dark count rate", True)
             i += 1
+        after = time()
+        #if trigger == "+0":
+        #    negtime -= after - before
+        negtime += after - before
+    negtime -= after - before
     numberOfDatasets = i
     sour.write("SOUR:VOLT:STAT OFF")
+    print(darkCounts)
+    return [numberOfDatasets - 1, settings["runTimeSeconds"] - negtime]
 
-    return numberOfDatasets
 
-
-def deleteTemp(settings, numberOfDatasets):
+def deleteTemp(settings, numberOfDatasets: list):
     i = 1
-    while i <= numberOfDatasets:
-        os.remove("./dataCollection/"+str(settings["pathNameDate"])+"/Temp/"+str(settings["fileName"])+str(i)+".csv")
-        i += 1
+    try:
+        while i <= numberOfDatasets[0]:
+            os.remove("./dataCollection/"+str(settings["pathNameDate"])+"/Temp/"+str(settings["fileName"])+str(i)+".csv")
+            i += 1
+    except FileNotFoundError as e:
+        print("File not found")
+ 
 
-def peakCounter(settings, numberOfDatasets):
+
+def peakCounter(settings, numberOfDatasets: list):
 
     timedic = {}
     voltdic = {}
     i = 1
-    while i <= numberOfDatasets:
-        voltage =  rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+str(i), 1)
-        backround = 0
-        for volt in voltage:
-            backround += volt
-        backround = backround / len(voltage)
-        voltdic[settings["fileName"]+str(i)] = [volt - backround for volt in voltage]
-        i += 1
-    darkCounts = 0
-    for key in voltdic:
-        peaks = find_peaks(voltdic[key], settings["peakHeight"])
-        darkCounts += len(peaks[0])
-        #plt.plot(voltdic[key])
-    print(f"{darkCounts} dark counts in "+str(settings["runTime"])+" seconds.")
-    darkCountRate = darkCounts / settings["runTime"]
-    print(f"Dark count rate {darkCountRate} Hz")
-    #plt.show()
+    try:
+        while i <= numberOfDatasets[0]:
+            voltage =  rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+str(i), 1)
+            backround = 0
+            for volt in voltage:
+                backround += volt
+            backround = backround / len(voltage)
+            voltdic[settings["fileName"]+str(i)] = [volt - backround for volt in voltage]
+            i += 1
+        darkCounts = 0
+        for key in voltdic:
+            peaks = find_peaks(voltdic[key], settings["peakHeight"])
+            darkCounts += len(peaks[0])
+            plt.plot(voltdic[key])
+        print(f"{darkCounts} dark counts in "+str(numberOfDatasets[1])+" seconds.")
+        darkCountRate = darkCounts / numberOfDatasets[1]
+        print(f"Dark count rate {darkCountRate} Hz")
+        plt.show()
+    except FileNotFoundError as e:
+        print("File not found")
+        return
 
 
 def runAnalyze(settings):
