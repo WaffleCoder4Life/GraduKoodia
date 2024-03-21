@@ -40,6 +40,8 @@ def setVoltageFine(instrument, voltage_V: float, currentLimit_A: float, voltageR
     instrument.write(":SOUR:VOLT:STAT ON") #OUTPUT ON 
 
 def UI():
+    instr.write("*RST")
+    instr.write("SYST:ZCH OFF")
     while True:
         print("Voltage range set to 50 V, current limit set to 2.5 mA.\nThese can be changed in the code 'settings'.")
         volt = float(input("Set voltage e.g. 24.5: "))
