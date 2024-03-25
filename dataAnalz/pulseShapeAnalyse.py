@@ -14,24 +14,24 @@ settings = {
             "deviceName" : 'USB0::0x2A8D::0x1797::CN56396144::INSTR',
             #Display settings
             "channel" : 1,
-            "displayVoltRange" : 160E-3,
+            "displayVoltRange" : 800E-3,
             "displayTimeRange" : 1E-6,
-            "triggerLevel" : 20E-3,
+            "triggerLevel" : 50E-3,
 
-            "pathNameDate": "25032024",
-            "fileName": "pulseChargeAndHeight23V",
+            "pathNameDate": "25032024/pulseCharge25V",
+            "fileName": "pulseChargeAndHeight25V",
             "numberOfDataSets": 100,
             "backroundEnd" : 950,
-            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. BIAS 23 V. LED in pulsed mode and temperature 1.77 kOhm",
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. BIAS 24 V. LED in pulsed mode and temperature 1.77 kOhm",
             
-            "averagePlotName" : "15singleCountAverage23V.png",
+            "averagePlotName" : "100singleCountAverageASD.png",
 
             "connectDevice" : 1,
             "setOscilloscopeDisplay" : 0,
             "saveOscilloscopeData" : 0, #Save single screen of data. Change display settings from oscilloscope to choose what to save. Save as fileName1, fileName2 etc.
             "pulseAveragePlot": 1,
             "plotSinglePulse": 0,
-            "captureSingleScreens" : 1, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
+            "captureSingleScreens" : 0, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
 
             "closeAfter" : 1
 }
@@ -112,14 +112,16 @@ def pulseAveragePlot(settings):
     
     #INTEGRATION FOR INDIVIDUAL PULSES
     pulseChargeList = []
+    pulseHeightList = []
     for dataset in datasets:
         dataAveg = [data - BGcorrection for data in dataset[950:1600]]
         pulaverSing = np.multiply(array("f", dataAveg),1E-3) #NOW [U] = V
         areaSing = integ.simps(pulaverSing, timeAxis, dx=1, even="avg")
         pulseChargeSing = format(areaSing / (223.87*50*1.602*10**-19), "e")
         pulseChargeList.append(float(pulseChargeSing))
+
+        pulseHeightList.append(max(dataAveg) - min(dataAveg))
     
-    print(pulseChargeList)
     average = 0
     for charge in pulseChargeList:
         average += charge
@@ -127,25 +129,35 @@ def pulseAveragePlot(settings):
     variance = statistics.variance(pulseChargeList)
     print(f"Pulse charge is {average} with variance of {variance} and standard deviation of {np.sqrt(variance)}")
 
+    print(pulseHeightList)
+    average2 = 0
+    for height in pulseHeightList:
+        average2 += height
+    average2 /= len(pulseHeightList)
+    variance2 = statistics.variance(pulseHeightList)
+    print(f"Pulse height is {average2} with variance of {variance2} and standard deviation of {np.sqrt(variance2)}")
+
+
+
     pulseCharge = format(area / (223.87*50*1.602*10**-19), "e")
     pulseCharge = float(pulseCharge)
     pulseCharge = f"{pulseCharge:.3e}"
     print(pulseCharge+" e")
 
     pulseHeight = max(pulseaverage) - min(pulseaverage)
-    pulseHeight = f"{pulseHeight:.4}"
+    pulseHeight = f"{pulseHeight:.2f}"
     
     ax2.plot([1E6 * point for point in timeAxis], pulseaverage, c="black", label=str(settings["numberOfDataSets"])+" pulse average")
     ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax1.set_ylabel("$U$ / mV")
-    ax1.set_title("$R_{\\mathrm{T}}$=1.77 k$\\Omega$, SiPM bias: 23 V")
+    ax1.set_title("$R_{\\mathrm{T}}$=1.77 k$\\Omega$, SiPM bias: 25 V")
     ax2.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax2.set_ylabel("$U$ / mV")
     ax2.legend()
     fig.tight_layout()
-    ax2.text(0.23, 26, f'Pulse\ncharge: {pulseCharge} e', fontsize=10)
-    ax2.text(0.23, 15, f'Pulse\nheight: {pulseHeight} mV', fontsize=10)
-    plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["averagePlotName"])
+    ax2.text(0.23, 3/5*max(pulseaverage), f'Pulse\ncharge: {pulseCharge} e', fontsize=10)
+    ax2.text(0.23, 1/3*max(pulseaverage), f'Pulse\nheight: {pulseHeight} mV', fontsize=10)
+    #plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["averagePlotName"])
     plt.show()
 
 def runAnalyze(settings):
