@@ -1,35 +1,12 @@
 import pyvisa as visa
 
-#========================SETTINGS========================
-
-settings = {
-            "voltageRange" : 50 #(possible values: 10 V, 50 V, 100 V)
-            ,"currentLimit" : 2.5e-3
-}
-
-#========================================================
-
-
-
-
-
+#Usable on Keithley 6487 source-meter
 
 
 id = "GPIB0::22::INSTR"
 
 rm = visa.ResourceManager()
 instr = rm.open_resource(id)
-
-#predetermined values if not adjusted in settings
-currentLimit = 2.5e-3
-voltageRange = 50
-
-#set voltageRange and currentLimit if specified in settings
-if settings["voltageRange"] != None:
-    voltageRange = settings["voltageRange"]
-if settings["currentLimit"] != None:
-    currentLimit = settings["currentLimit"]
-
 
 def setVoltageFine(instrument, voltage_V: float, currentLimit_A: float, voltageRange: float):
     """Set bias voltage range, voltage, current limit and turn output ON"""
@@ -39,19 +16,63 @@ def setVoltageFine(instrument, voltage_V: float, currentLimit_A: float, voltageR
     instrument.write(":SOUR:VOLT "+str(voltage_V)) #SET VOLTAGE
     instrument.write(":SOUR:VOLT:STAT ON") #OUTPUT ON 
 
+
+
 def UI():
     instr.write("*RST")
-    instr.write("SYST:ZCH OFF")
-    while True:
-        print("Voltage range set to 50 V, current limit set to 2.5 mA.\nThese can be changed in the code 'settings'.")
-        volt = float(input("Set voltage e.g. 24.5: "))
-        setVoltageFine(instr, volt, settings["currentLimit"], settings["voltageRange"])
 
-        off = input("Press enter to switch off")
-        if off == "":
+    #predetermined values if not adjusted in settings
+    currentLimit = 2.5e-3
+    voltageRange = 50
+
+    numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    settings = {"UIsetV" : f"{next(numbers)} Set voltage",
+                "UIsetVRan" : f"{next(numbers)} Set voltage range",
+                "UIsetILim" : f"{next(numbers)} Set current limit",
+                "UIswitchOff" : f"{next(numbers)} Output off",
+                "UIInfo" : f"{next(numbers)} Help and list of current settings",
+                "UIcloseProgram" : f"{next(numbers)} Close program"}
+    
+
+    while True:
+        info = f"Settings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
+        num = input(f"Pick a number\n{settings["UIsetV"]}\n{settings["UIsetVRan"]}\n{settings["UIsetILim"]}\n{settings["UIInfo"]}")
+        
+        if num == settings["UIsetV"][0]:
+            try:
+                volt = float(input("Give voltage: "))
+            except TypeError:
+                print("Must be given as a float e.g. 24.5")
+            instr.write(":SYST:ZCH:STAT?")
+            if instr.read() == "1":
+                instr.write(":SYST:ZCH OFF")
+            setVoltageFine(instr, volt, currentLimit, voltageRange)
+        
+        if num == settings["UIsetVRan"][0]:
+            try:
+                vRan = int(input("Possible values: 10, 50, 100\nGive voltage range: "))
+            except TypeError:
+                print("Must be given as int e.g. 10")
+            voltageRange = vRan
+            print(f"Voltage range set to {vRan}")
+        
+        if num == settings["UIsetILim"][0]:
+            try:
+                iLim = float(input("Give current limit: "))
+            except TypeError:
+                print("Must be given as a float e.g. 2.5e-3")
+            currentLimit = iLim
+            print(f"Current limit set to {iLim}")
+        
+        if num == settings["UIswitchOff"][0]:
             instr.write(":SOUR:VOLT:STAT OFF")
-        shutdown = input("Do you want to continue? y/n")
-        if shutdown == "n":
+        
+        if num == settings["UIInfo"][0]:
+            print(info)
+        
+        if num == settings["UIcloseProgram"][0]:
             break
+
+        
 
 UI()
