@@ -34,14 +34,17 @@ def UI():
                 "UIInfo" : f"{next(numbers)} Help and list of current settings",
                 "UIcloseProgram" : f"{next(numbers)} Close program"}
     
+    instr.write(":SENS:RANG 0.00001") #CURRENT MEASURE RANGE patch in in the future
+    instr.write(":TRIG:COUNT INF")
 
     while True:
         info = f"Settings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
+        instr.write(":INIT")
 
         UIDispl = ""
         for key in settings:
             UIDispl += "\n" + settings[key]
-        num = input("Pick a number" + UIDispl)
+        num = input("Pick a number" + UIDispl + "\n")
         
         if num == settings["UIsetV"][0]:
             try:
