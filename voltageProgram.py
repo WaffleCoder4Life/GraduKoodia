@@ -39,7 +39,6 @@ def UI():
 
     while True:
         info = f"Settings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
-        instr.write(":INIT")
 
         UIDispl = ""
         for key in settings:
@@ -56,6 +55,8 @@ def UI():
             if check == "ON":
                 instr.write(":SYST:ZCH OFF")
             setVoltageFine(instr, volt, currentLimit, voltageRange)
+            instr.write(":INIT")
+
         
         if num == settings["UIsetVRan"][0]:
             try:
