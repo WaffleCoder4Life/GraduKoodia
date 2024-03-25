@@ -24,8 +24,9 @@ def UI():
     #predetermined values if not adjusted in settings
     currentLimit = 2.5e-3
     voltageRange = 50
-
-    numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    
+    nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    numbers = iter(nums)
     settings = {"UIsetV" : f"{next(numbers)} Set voltage",
                 "UIsetVRan" : f"{next(numbers)} Set voltage range",
                 "UIsetILim" : f"{next(numbers)} Set current limit",
