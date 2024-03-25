@@ -5,25 +5,67 @@ from matplotlib.pyplot import cm
 import scipy.integrate as integ
 from array import array
 import numpy as np
+import deviceControl as cont
+import pyvisa as visa
+import statistics
+import os
 
 settings = {
-            "pathNameDate": "18032024",
-            "fileName": "darkcount7K",
-            "numberOfDataSets": 20,
+            "deviceName" : 'USB0::0x2A8D::0x1797::CN56396144::INSTR',
+            #Display settings
+            "channel" : 1,
+            "displayVoltRange" : 160E-3,
+            "displayTimeRange" : 1E-6,
+            "triggerLevel" : 20E-3,
+
+            "pathNameDate": "25032024",
+            "fileName": "pulseChargeAndHeight23V",
+            "numberOfDataSets": 100,
             "backroundEnd" : 950,
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. BIAS 23 V. LED in pulsed mode and temperature 1.77 kOhm",
             
-            "averagePlotName" : "20singlecountAverage7k.png",
+            "averagePlotName" : "15singleCountAverage23V.png",
+
+            "connectDevice" : 1,
+            "setOscilloscopeDisplay" : 0,
+            "saveOscilloscopeData" : 0, #Save single screen of data. Change display settings from oscilloscope to choose what to save. Save as fileName1, fileName2 etc.
             "pulseAveragePlot": 1,
-            "plotSinglePulse": 0
+            "plotSinglePulse": 0,
+            "captureSingleScreens" : 1, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
+
+            "closeAfter" : 1
 }
 
+if settings["connectDevice"]:
+    rm = visa.ResourceManager()
+    osc = rm.open_resource(settings["deviceName"])
 
+
+def saveOscilloscopeData(settings):
+    cont.saveData(osc, settings["fileName"], settings["testDescribtion"], False)
+
+def setOscilloscopeDisplay(settings):
+    cont.setDisplay(osc, settings["channel"], settings["displayVoltRange"], settings["displayTimeRange"], settings["triggerLevel"])
+
+def captureSingleScreens(settings):
+    cont.setDisplay(osc, settings["channel"], settings["displayVoltRange"], settings["displayTimeRange"], settings["triggerLevel"])
+    osc.write(":RUN")
+    i = 1
+    osc.write("CHAN1:DISP 1")
+    while i <= settings["numberOfDataSets"]:
+        cont.saveData(osc, settings["fileName"], settings["testDescribtion"], True)
+        temp = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"], 1)
+        if cont.countPeaks(temp, settings["triggerLevel"]) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 3) == 0:
+            os.rename("./dataCollection/"+settings["pathNameDate"]+"/Temp/"+settings["fileName"]+".csv","./dataCollection/" + settings["pathNameDate"]+"/"+settings["fileName"]+str(i)+".csv")
+            i += 1
+        else:
+            os.remove("./dataCollection/" + settings["pathNameDate"]+"/Temp/"+settings["fileName"]+".csv")
 
 
 
 def plotSinglePulse(settings):
     """Use to check that pulse is in the middle"""
-    plt.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+"1", 0)], [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+"1", 1)])
+    plt.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"], 0)], [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"], 1)])
     plt.xlabel("$t$ / $\\mathrm{\\mu}$s")
     plt.ylabel("$U$ / mV")
     plt.show()
@@ -67,23 +109,55 @@ def pulseAveragePlot(settings):
     pulaver = np.multiply(array("f", pulseaverage),1E-3) #NOW [U] = V
     area = integ.simps(pulaver, timeAxis, dx=1, even="avg")
     areaforimage = format(area, "e")
-    print(areaforimage)
-
-    pulseCharge = format(area / (23.5*50*1.602*10**-19), "e")
-    print(pulseCharge+" e")
     
-    ax2.plot([1E6 * point for point in timeAxis], pulseaverage, c="black", label="Pulse\nCharge: "+pulseCharge + " e")
+    #INTEGRATION FOR INDIVIDUAL PULSES
+    pulseChargeList = []
+    for dataset in datasets:
+        dataAveg = [data - BGcorrection for data in dataset[950:1600]]
+        pulaverSing = np.multiply(array("f", dataAveg),1E-3) #NOW [U] = V
+        areaSing = integ.simps(pulaverSing, timeAxis, dx=1, even="avg")
+        pulseChargeSing = format(areaSing / (223.87*50*1.602*10**-19), "e")
+        pulseChargeList.append(float(pulseChargeSing))
+    
+    print(pulseChargeList)
+    average = 0
+    for charge in pulseChargeList:
+        average += charge
+    average /= len(pulseChargeList)
+    variance = statistics.variance(pulseChargeList)
+    print(f"Pulse charge is {average} with variance of {variance} and standard deviation of {np.sqrt(variance)}")
+
+    pulseCharge = format(area / (223.87*50*1.602*10**-19), "e")
+    pulseCharge = float(pulseCharge)
+    pulseCharge = f"{pulseCharge:.3e}"
+    print(pulseCharge+" e")
+
+    pulseHeight = max(pulseaverage) - min(pulseaverage)
+    pulseHeight = f"{pulseHeight:.4}"
+    
+    ax2.plot([1E6 * point for point in timeAxis], pulseaverage, c="black", label=str(settings["numberOfDataSets"])+" pulse average")
     ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax1.set_ylabel("$U$ / mV")
-    ax1.set_title("$R_{\\mathrm{T}}$=1.136 k$\\Omega$, SiPM bias: 24 V")
+    ax1.set_title("$R_{\\mathrm{T}}$=1.77 k$\\Omega$, SiPM bias: 23 V")
     ax2.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax2.set_ylabel("$U$ / mV")
     ax2.legend()
     fig.tight_layout()
+    ax2.text(0.23, 26, f'Pulse\ncharge: {pulseCharge} e', fontsize=10)
+    ax2.text(0.23, 15, f'Pulse\nheight: {pulseHeight} mV', fontsize=10)
     plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["averagePlotName"])
     plt.show()
 
 def runAnalyze(settings):
+
+    if settings["setOscilloscopeDisplay"]:
+        setOscilloscopeDisplay(settings)
+
+    if settings["saveOscilloscopeData"]:
+        saveOscilloscopeData(settings)
+
+    if settings["captureSingleScreens"]:
+        captureSingleScreens(settings)
 
     if settings["plotSinglePulse"]:
         plotSinglePulse(settings)
@@ -97,3 +171,6 @@ def runAnalyze(settings):
 
 
 runAnalyze(settings)
+
+if settings["closeAfter"]:
+    osc.close()

@@ -45,7 +45,7 @@ singleTest = 1
 sweepTest = 0
 sweepAverageTest = 0
 plotSweep = 0
-closeAfter = 0
+closeAfter = 1
 
 
 if reset:
@@ -77,16 +77,17 @@ if singleTest:
 
 
 filename = "darkCurrentAverage10PointsShutterOpened"
-dateFolder = "19032024" #CHANGE AND CReATE NEW FOLDER TO dataCollection
+#filename2 = "darkCurrentAverage10PointsShutterClosed2"
+dateFolder = "21032024" #CHANGE AND CReATE NEW FOLDER TO dataCollection
 
 if sweepTest:
     print("Executing sweep test...")
-    vsf.voltageSweepFine(sour, 50, 25, 26.6, 2.5E-6, filename, "Keithley6487, temperature 1.132 kOhm, IV-curve for dark current with open shutter and LED power off, voltage step 0.01")
+    vsf.voltageSweepFine(sour, 50, 25, 26.6, 2.5E-6, filename, "Keithley6487, temperature 1.816 kOhm, IV-curve for dark current with closed shutter and LED power off, voltage step 0.01")
     sour.close()
 
 if sweepAverageTest:
     print("Executing average sweep test...")
-    vsa.voltageSweepAverage(sour, 50, 26, 26.6, 2.5E-6, filename, 10, 0.005, "Keithley 6487, temperature 1.132 kOhm, IV-curve with average sweep, 10 points per voltage, dark current with open lid, voltage step 0.005")
+    vsa.voltageSweepAverage(sour, 50, 26.3, 26.67, 2.5E-6, filename, 10, 0.005, "Keithley 6487, temperature 1.820 kOhm, IV-curve with average sweep, 10 points per voltage, dark current with open lid, voltage step 0.005")
 
 
 if closeAfter:
@@ -96,9 +97,13 @@ if closeAfter:
 if plotSweep:
     voltageup = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO THE SOURCE
     currentup = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
-    plt.scatter(voltageup, currentup, s=2, c="red", marker="d")
+    #voltageup2 = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename2, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO THE SOURCE
+    #currentup2 = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename2, 1)]
+    plt.scatter(voltageup, currentup, s=2, c="red", marker="d", label = "Shutter open")
+    #plt.scatter(voltageup2, currentup2, s=2, c="green", marker="d", label = "Shutter closed")
     plt.xlabel("$U$ / V")
     plt.ylabel("$I$ / nA")
+    plt.legend()
     plt.tight_layout()
     plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename)
     plt.show()

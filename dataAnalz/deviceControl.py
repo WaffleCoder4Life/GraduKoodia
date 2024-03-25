@@ -1,6 +1,7 @@
 import numpy as np
 import os
 from datetime import date
+from scipy.signal import find_peaks
 
 def saveData(instrument, fileName: str, testDescribtion: str, temp: bool, measSettings: str = ""):
     """Reads binary data from instrument, and formats it to voltages. 
@@ -61,6 +62,15 @@ def setDisplay(instrument, chan: int, voltageRange_V: float, timeRange_s: float,
     settings = "Voltage range: " + str(voltageRange_V) + " V, Time range: " + str(timeRange_s) + " s, Trigger level: " + str(triggerLevel_V) + "V"
 
     return settings
+
+
+def countPeaks(data: list, h: float, d = 5) -> int:
+    """data, peak height V -> number of peaks"""
+
+    x = np.array(data)
+
+    peaks, _ = find_peaks(x, height = h, distance=d)
+    return len(peaks)
 
 
 

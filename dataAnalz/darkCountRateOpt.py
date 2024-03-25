@@ -7,14 +7,17 @@ import os
 from time import time, sleep
 
 settings = {
-    "pathNameDate" : "20032024",
+    "pathNameDate" : "21032024",
     "fileName" : "darkcountTemp",
     "biasVoltageRange" : 50,
-    "biasVoltage" : 24,
+    "biasVoltage" : 25,
     "biasCurrentLimit" : 2.5E-3,
-    "timeRange" : 100E-6,
-    "runTimeSeconds" : 60,
+
+    "oscVoltageRange" : 16E-3,
+    "timeRange" : 100E-9,
+    "runTimeSeconds" : 100,
     "peakHeight" : 0.002,
+
     "aquireData" : 1,
     "countPeaks" : 0,
     "deleteTempAfter" : 0
@@ -37,7 +40,7 @@ def aquireData(settings):
     setVoltageFine(sour, settings["biasVoltageRange"], settings["biasVoltage"], settings["biasCurrentLimit"])
     print("Bias voltage set.")
 
-    setDisplay(osc, 1, 16E-3, settings["timeRange"], settings["peakHeight"])
+    setDisplay(osc, 1, settings["oscVoltageRange"], settings["timeRange"], settings["peakHeight"])
     print("Oscilloscope display set.")
     osc.write(":RUN")
 
@@ -45,7 +48,7 @@ def aquireData(settings):
     startTime = time()
     i = 1
     negtime = 0
-    darkCounts = 0
+    darkCounts = -1
     while (time() - startTime) < runTime:
         osc.write(":TER?")
         trigger = osc.read().strip()
@@ -62,8 +65,9 @@ def aquireData(settings):
     negtime -= after - before
     numberOfDatasets = i
     sour.write("SOUR:VOLT:STAT OFF")
-    print(darkCounts)
-    return [numberOfDatasets - 1, settings["runTimeSeconds"] - negtime]
+    print("dark counts:", darkCounts)
+    print("dark count rate:", darkCounts / runTime)
+    return [numberOfDatasets - 1, settings["runTimeSeconds"]]
 
 
 def deleteTemp(settings, numberOfDatasets: list):

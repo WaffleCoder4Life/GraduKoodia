@@ -21,6 +21,7 @@ setVoltage(sour, 1000, 25, 0.015)
 
 setDisplay(osc, 1, 0.04, 1, 0.0035)
 
+
 save.saveData(osc, "countTest", "")
 asd = read.readOscilloscopeData("./dataCollection/countTest", 1)
 zxc = max(asd)/3.1
