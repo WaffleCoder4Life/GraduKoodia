@@ -37,7 +37,11 @@ def UI():
 
     while True:
         info = f"Settings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
-        num = input("Pick a number\n"+settings["UIsetV"]+"\n"+settings["UIsetVRan"]+"\n"+settings["UIsetILim"]+"\n"+settings["UIInfo"])
+
+        UIDispl = ""
+        for key in settings:
+            UIDispl += "\n" + settings[key]
+        num = input("Pick a number" + UIDispl)
         
         if num == settings["UIsetV"][0]:
             try:
@@ -45,7 +49,8 @@ def UI():
             except TypeError:
                 print("Must be given as a float e.g. 24.5")
             instr.write(":SYST:ZCH:STAT?")
-            if instr.read() == "1":
+            check = instr.read()
+            if check == "ON":
                 instr.write(":SYST:ZCH OFF")
             setVoltageFine(instr, volt, currentLimit, voltageRange)
         
