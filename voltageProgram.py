@@ -43,22 +43,25 @@ def UI():
         UIDispl = ""
         for key in settings:
             UIDispl += "\n" + settings[key]
+        
         num = input("Pick a number" + UIDispl + "\n")
         
         if num == settings["UIsetV"][0]:
+            instr.write(":ABOR")
             try:
                 volt = float(input("Give voltage: "))
             except TypeError:
                 print("Must be given as a float e.g. 24.5")
             instr.write(":SYST:ZCH:STAT?")
             check = instr.read()
-            if check == "ON":
+            if check == "+1":
                 instr.write(":SYST:ZCH OFF")
             setVoltageFine(instr, volt, currentLimit, voltageRange)
             instr.write(":INIT")
 
         
         if num == settings["UIsetVRan"][0]:
+            instr.write(":ABOR")
             try:
                 vRan = int(input("Possible values: 10, 50, 100\nGive voltage range: "))
             except TypeError:
@@ -67,6 +70,7 @@ def UI():
             print(f"Voltage range set to {vRan}")
         
         if num == settings["UIsetILim"][0]:
+            instr.write(":ABOR")
             try:
                 iLim = float(input("Give current limit: "))
             except TypeError:
@@ -75,9 +79,11 @@ def UI():
             print(f"Current limit set to {iLim}")
         
         if num == settings["UIswitchOff"][0]:
+            instr.write(":ABOR")
             instr.write(":SOUR:VOLT:STAT OFF")
         
         if num == settings["UIInfo"][0]:
+            instr.write(":ABOR")
             print(info)
         
         if num == settings["UIcloseProgram"][0]:
