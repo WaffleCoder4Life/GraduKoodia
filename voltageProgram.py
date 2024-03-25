@@ -36,7 +36,7 @@ def UI():
 
     while True:
         info = f"Settings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
-        num = input(f"Pick a number\n{settings["UIsetV"]}\n{settings["UIsetVRan"]}\n{settings["UIsetILim"]}\n{settings["UIInfo"]}")
+        num = input("Pick a number\n"+settings["UIsetV"]+"\n"+settings["UIsetVRan"]+"\n"+settings["UIsetILim"]+"\n"+settings["UIInfo"])
         
         if num == settings["UIsetV"][0]:
             try:
