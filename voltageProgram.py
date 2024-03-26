@@ -34,7 +34,7 @@ def UI():
                 "UIInfo" : f"{next(numbers)} Help and list of current settings",
                 "UIcloseProgram" : f"{next(numbers)} Close program"}
     
-    instr.write(":SENS:RANG 0.00001") #CURRENT MEASURE RANGE patch in in the future
+    instr.write(":SENS:RANG 0.00001") #CURRENT MEASURE RANGE FUTURE FEATURE
     instr.write(":TRIG:COUNT INF")
 
     while True:
@@ -72,7 +72,7 @@ def UI():
         if num == settings["UIsetILim"][0]:
             instr.write(":ABOR")
             try:
-                iLim = float(input("Give current limit: "))
+                iLim = float(input("Give current limit: ")) #NEED TO FIND POSSIBLE VALUES
             except:
                 print("Something went wrong")
             currentLimit = iLim
