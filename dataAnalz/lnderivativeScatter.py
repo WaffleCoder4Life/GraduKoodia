@@ -15,7 +15,7 @@ def lnDerivativeScatter(fileName: str,
     current = [float(point) for point in rsf.readSourceMeterDataFine(fileName, 1)]
     i = 0
     while i < len(current):
-        if current[i] <= 0:
+        if current[i] <= 1e-9:
             current.remove(current[i])
         else:
             i += 1
