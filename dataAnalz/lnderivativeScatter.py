@@ -12,7 +12,14 @@ def lnDerivativeScatter(fileName: str,
     with keys 'voltage' and 'logDeriv'."""
 
     voltageIn = rsf.readSourceMeterDataFine(fileName, 0)
-    logCurrent = [np.log(point) for point in rsf.readSourceMeterDataFine(fileName, 1)]
+    current = [float(point) for point in rsf.readSourceMeterDataFine(fileName, 1)]
+    i = 0
+    while i < len(current):
+        if current[i] <= 0:
+            current.remove(current[i])
+        else:
+            i += 1
+    logCurrent = [np.log(point) for point in current]
 
     voltage = array("f", [])
     logCurrentDeriv = array("f", [])
@@ -22,9 +29,9 @@ def lnDerivativeScatter(fileName: str,
         currentDeriv = (logCurrent[i+1] - logCurrent[i]) / (voltageIn[i+1] - voltageIn[i])
         voltage.append(voltaver)
         logCurrentDeriv.append(currentDeriv)
+        i += 1
     
     plt.scatter(voltage, logCurrentDeriv, s=markerSize, marker=marker, color=color)
-
     dic = {"voltage": voltage, "logDeriv": logCurrentDeriv}
 
     return dic
