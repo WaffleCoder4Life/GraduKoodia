@@ -38,7 +38,7 @@ def UI():
     instr.write(":SENS:RANG 0.00001") #CURRENT MEASURE RANGE FUTURE FEATURE
     instr.write(":TRIG:COUNT INF")
 
-    help = "\nVoltage should be given as float\nVoltage range should be given as integer\nCurrent limit should be given as float\n"
+    help = "\nVoltage should be given as float\nVoltage range should be given as integer\nCurrent limit should be given as float"
 
     while True:
         info = f"\nSettings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
@@ -52,9 +52,9 @@ def UI():
         if num == settings["UIsetV"][0]:
             instr.write(":ABOR")
             try:
-                volt = float(input("Give voltage: "))
+                volt = float(input("\nGive voltage: "))
             except:
-                print("Something went wrong")
+                print("\nSomething went wrong")
             #instr.write(":SYST:ZCH:STAT?")
             #check = instr.read()
             #if check == "+1": #NEEDS TROUBLESHOOTING
@@ -66,20 +66,20 @@ def UI():
         if num == settings["UIsetVRan"][0]:
             instr.write(":ABOR")
             try:
-                vRan = int(input("Possible values: 10, 50, 100\nGive voltage range: "))
+                vRan = int(input("\nPossible values: 10, 50, 100\nGive voltage range: "))
             except:
-                print("Something went wrong")
+                print("\nSomething went wrong")
             voltageRange = vRan
-            print(f"Voltage range set to {vRan}")
+            print(f"\nVoltage range set to {vRan}")
         
         if num == settings["UIsetILim"][0]:
             instr.write(":ABOR")
             try:
-                iLim = float(input("Give current limit: ")) #NEED TO FIND POSSIBLE VALUES
+                iLim = float(input("\nGive current limit: ")) #NEED TO FIND POSSIBLE VALUES
             except:
-                print("Something went wrong")
+                print("\nSomething went wrong")
             currentLimit = iLim
-            print(f"Current limit set to {iLim}")
+            print(f"\nCurrent limit set to {iLim}")
         
         if num == settings["UIswitchOff"][0]:
             instr.write(":ABOR")
@@ -90,7 +90,7 @@ def UI():
             print(info + help)
         
         if num == settings["UIcloseProgram"][0]:
-            print("Have a nice day!")
+            print("\nHave a nice day!")
             time.sleep(3)
             break
 
