@@ -52,10 +52,10 @@ def UI():
                 volt = float(input("Give voltage: "))
             except TypeError:
                 print("Must be given as a float e.g. 24.5")
-            instr.write(":SYST:ZCH:STAT?")
-            check = instr.read()
-            if check == "+1":
-                instr.write(":SYST:ZCH OFF")
+            #instr.write(":SYST:ZCH:STAT?")
+            #check = instr.read()
+            #if check == "+1": #NEEDS TROUBLESHOOTING
+            instr.write(":SYST:ZCH OFF")
             setVoltageFine(instr, volt, currentLimit, voltageRange)
             instr.write(":INIT")
 
