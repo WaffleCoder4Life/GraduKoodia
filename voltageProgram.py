@@ -31,20 +31,22 @@ def UI():
                 "UIsetVRan" : f"{next(numbers)} Set voltage range",
                 "UIsetILim" : f"{next(numbers)} Set current limit",
                 "UIswitchOff" : f"{next(numbers)} Output off",
-                "UIInfo" : f"{next(numbers)} Help and list of current settings",
-                "UIcloseProgram" : f"{next(numbers)} Close program"}
+                "UIcloseProgram" : f"{next(numbers)} Close program",
+                "UIInfo" : f"{next(numbers)} Help and list of current settings"}
     
     instr.write(":SENS:RANG 0.00001") #CURRENT MEASURE RANGE FUTURE FEATURE
     instr.write(":TRIG:COUNT INF")
 
+    help = "\nVoltage should be given as float\nVoltage range should be given as integer\nCurrent limit should be given as float\n"
+
     while True:
-        info = f"Settings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
+        info = f"\nSettings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
 
         UIDispl = ""
         for key in settings:
             UIDispl += "\n" + settings[key]
         
-        num = input("Pick a number" + UIDispl + "\n")
+        num = input("\nPick a number\n" + UIDispl + "\n")
         
         if num == settings["UIsetV"][0]:
             instr.write(":ABOR")
@@ -84,7 +86,7 @@ def UI():
         
         if num == settings["UIInfo"][0]:
             instr.write(":ABOR")
-            print(info)
+            print(info + help)
         
         if num == settings["UIcloseProgram"][0]:
             break
