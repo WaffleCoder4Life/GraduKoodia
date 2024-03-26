@@ -1,4 +1,5 @@
 import pyvisa as visa
+import time
 
 #Usable on Keithley 6487 source-meter
 
@@ -89,6 +90,8 @@ def UI():
             print(info + help)
         
         if num == settings["UIcloseProgram"][0]:
+            print("Have a nice day!")
+            time.sleep(3)
             break
 
         
