@@ -50,8 +50,8 @@ def UI():
             instr.write(":ABOR")
             try:
                 volt = float(input("Give voltage: "))
-            except TypeError:
-                print("Must be given as a float e.g. 24.5")
+            except:
+                print("Something went wrong")
             #instr.write(":SYST:ZCH:STAT?")
             #check = instr.read()
             #if check == "+1": #NEEDS TROUBLESHOOTING
@@ -64,8 +64,8 @@ def UI():
             instr.write(":ABOR")
             try:
                 vRan = int(input("Possible values: 10, 50, 100\nGive voltage range: "))
-            except TypeError:
-                print("Must be given as int e.g. 10")
+            except:
+                print("Something went wrong")
             voltageRange = vRan
             print(f"Voltage range set to {vRan}")
         
@@ -73,8 +73,8 @@ def UI():
             instr.write(":ABOR")
             try:
                 iLim = float(input("Give current limit: "))
-            except TypeError:
-                print("Must be given as a float e.g. 2.5e-3")
+            except:
+                print("Something went wrong")
             currentLimit = iLim
             print(f"Current limit set to {iLim}")
         
