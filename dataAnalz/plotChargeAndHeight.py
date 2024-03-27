@@ -27,17 +27,21 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     heightWeight = [1/point for point in heightVariances]
 
     x = Symbol("x")
+    y = Symbol("y")
     bv = sm.add_constant(bias_voltage)
     chargefit = sm.WLS(charge, bv, weights = chargeWeight)
     chargeResult = chargefit.fit()
     line1 = line(x, chargeResult.params[1], chargeResult.params[0])
     breakdownResult = solve(line1, x)
-    print(f"Breakdown voltage from charge is {breakdownResult}")
+    breakDownOmega = (np.sqrt(chargeResult.cov_params()[0][0]/((chargeResult.params[0])**2)+chargeResult.cov_params()[1][1]/((chargeResult.params[1])**2)-2*(chargeResult.cov_params()[0][1])/(chargeResult.params[0]*chargeResult.params[1]))*breakdownResult[0])
+    print(f"Breakdown voltage from charge is {breakdownResult} with standard deviation of {breakDownOmega}")
+
     heightfit = sm.WLS(height, bv, weights = heightWeight)
     heightResult = heightfit.fit()
     line2 = line(x, heightResult.params[1], heightResult.params[0])
-    breakdownResult = solve(line2, x)
-    print(f"Breakdown voltage from height is {breakdownResult}")
+    breakdownResult2 = solve(line2, x)
+    breakDownOmega2 = (np.sqrt(heightResult.cov_params()[0][0]/((heightResult.params[0])**2)+heightResult.cov_params()[1][1]/((heightResult.params[1])**2)-2*(heightResult.cov_params()[0][1])/(heightResult.params[0]*heightResult.params[1]))*breakdownResult2[0])
+    print(f"Breakdown voltage from height is {breakdownResult2} with standard deviation of {breakDownOmega2}")
 
     print("Charge fit params: ", chargeResult.params)
     print("Covariant matrix: ", chargeResult.cov_params())
@@ -61,21 +65,29 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     ax1.scatter(bias_voltage, charge, marker = "s", s=10, c="mediumorchid", label="Pulse charge with 1$\sigma$ error bars")
     ax1.errorbar(bias_voltage, charge, yerr=chargeSigmaError, fmt = "none", ecolor = "mediumorchid", capsize = 3)
     ax1.plot(voltage_space, charge_plot_fit, color = "mediumaquamarine", label = "Weighted least squares fit")
+
+    ax1.scatter(breakdownResult, [0], marker = "s", s=10, c="black", label=f"Avalanche breakdown voltage")
+    ax1.errorbar(float(breakdownResult[0]), [0], xerr = [float(breakDownOmega)], fmt = "none", ecolor = "black", capsize = 3)
+
     ax1.set_ylabel("charge ($10^{6}$ e)")
     ax1.legend()
 
     ax2.scatter(bias_voltage, height, marker = "s", s=10, c="mediumorchid", label="Pulse height with 1$\sigma$ error bars")
     ax2.errorbar(bias_voltage, height, yerr=heightSigmaError, fmt = "none", ecolor = "mediumorchid", capsize = 3)
     ax2.plot(voltage_space, height_plot_fit, color = "mediumaquamarine", label = "Weighted least squares fit")
+
+    ax2.scatter(breakdownResult2, [0], marker = "s", s=10, c="black", label=f"Avalanche breakdown voltage")
+    ax2.errorbar(float(breakdownResult2[0]), [0], xerr = [float(breakDownOmega2)], fmt = "none", ecolor = "black", capsize = 3)
+
     ax2.set_ylabel("pulse height (V)")
     ax2.legend()
 
-    ax1.set_title("Temperature 1.77 k$\Omega$")
+    ax1.set_title("Temperature 1.14 k$\Omega$")
     plt.xlabel("Bias voltage (V)")
     plt.tight_layout()
-    plt.savefig("./dataCollection/charge_and_height_at_177kOhm.png")
+    plt.savefig("./dataCollection/charge_and_height_at_114kOhm.png")
     plt.show()
     
 
-chargeAndHeightPlot(charge_177, height_177, bias_voltage, chargeVariances_177, heightVariances_177)
+chargeAndHeightPlot(charge_114, height_114, bias_voltage, chargeVariances_114, heightVariances_114)
 

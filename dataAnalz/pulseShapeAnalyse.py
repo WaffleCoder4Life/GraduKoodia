@@ -16,15 +16,16 @@ settings = {
             "channel" : 1,
             "displayVoltRange" : 400E-3,
             "displayTimeRange" : 1E-6,
-            "triggerLevel" : 40E-3,
+            "triggerLevel" : 30E-3,
 
-            "pathNameDate": "26032024",
-            "fileName": "pulseChargeAndHeight25V",
-            "numberOfDataSets": 100,
+            "pathNameDate": "27032024",
+            "fileName": "pulseChargeAndHeightTEST", #Adds biasVoltage to the end of the name
+            "biasVoltage" : "24V",
+            "numberOfDataSets": 10,
             "backroundEnd" : 950, #Display from 0 to 2000, if no delay trigger at 1000
-            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. BIAS 25 V. Dark counts and temperature 1.14 kOhm",
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. Dark counts and temperature 1.14 kOhm",
             
-            "averagePlotName" : "100singleCountAverage25V.png",
+            "averagePlotName" : "100singleCountAverage",
 
             "connectDevice" : 1,
             "setOscilloscopeDisplay" : 0,
@@ -42,7 +43,7 @@ if settings["connectDevice"]:
 
 
 def saveOscilloscopeData(settings):
-    cont.saveData(osc, settings["fileName"], settings["testDescribtion"], False)
+    cont.saveData(osc, settings["fileName"]+settings["biasVoltage"], settings["testDescribtion"], False)
 
 def setOscilloscopeDisplay(settings):
     cont.setDisplay(osc, settings["channel"], settings["displayVoltRange"], settings["displayTimeRange"], settings["triggerLevel"])
@@ -53,19 +54,19 @@ def captureSingleScreens(settings):
     i = 1
     osc.write("CHAN1:DISP 1")
     while i <= settings["numberOfDataSets"]:
-        cont.saveData(osc, settings["fileName"], settings["testDescribtion"], True)
-        temp = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"], 1)
-        if cont.countPeaks(temp, settings["triggerLevel"]) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 3) == 0:
-            os.rename("./dataCollection/"+settings["pathNameDate"]+"/Temp/"+settings["fileName"]+".csv","./dataCollection/" + settings["pathNameDate"]+"/"+settings["fileName"]+str(i)+".csv")
+        cont.saveData(osc, settings["fileName"]+settings["biasVoltage"], settings["fileName"]+settings["biasVoltage"]+" "+settings["testDescribtion"], True)
+        temp = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"], 1)
+        if cont.countPeaks(temp, settings["triggerLevel"], 400) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 3, 400) == 0:
+            os.rename("./dataCollection/"+settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv","./dataCollection/" + settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+str(i)+".csv")
             i += 1
         else:
-            os.remove("./dataCollection/" + settings["pathNameDate"]+"/Temp/"+settings["fileName"]+".csv")
+            os.remove("./dataCollection/" + settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv")
 
 
 
 def plotSinglePulse(settings):
     """Use to check that pulse is in the middle"""
-    plt.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"], 0)], [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"], 1)])
+    plt.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"], 0)], [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"], 1)])
     plt.xlabel("$t$ / $\\mathrm{\\mu}$s")
     plt.ylabel("$U$ / mV")
     plt.show()
@@ -83,10 +84,10 @@ def pulseAveragePlot(settings):
     i = 1
     datasets = []
     while i <= settings["numberOfDataSets"]:
-        tempor = [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+"{0}".format(str(i)), 1)]
+        tempor = [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"{0}".format(str(i)), 1)]
         #NOW [U] = mV
         datasets.append(tempor)
-        ax1.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+"{0}".format(str(i)), 0)], tempor)
+        ax1.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"{0}".format(str(i)), 0)], tempor)
         i += 1
 
     #AVERAGE OF BACKGROUND FROM ALL DATASETS FROM START TO PULSE
@@ -101,9 +102,9 @@ def pulseAveragePlot(settings):
 
 
     #AVERAGE PULSE DATA FROM ALL DATASETS AND SUBTRACT BG CORRECTION
-    pulseaveragetemp = av.averageData(settings["numberOfDataSets"], [dataset[950:1400] for dataset in datasets])
+    pulseaveragetemp = av.averageData(settings["numberOfDataSets"], [dataset[950:1500] for dataset in datasets])
     pulseaverage = [point - BGcorrection for point in pulseaveragetemp]
-    timeAxis = [point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+"1", 0)[:450]]
+    timeAxis = [point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 0)[:550]]
 
     #INTEGRATION USING SIMPSON'S RULE
     pulaver = np.multiply(array("f", pulseaverage),1E-3) #NOW [U] = V
@@ -115,7 +116,7 @@ def pulseAveragePlot(settings):
     pulseChargeList = []
     pulseHeightList = []
     for dataset in datasets:
-        dataAveg = [data - BGcorrection for data in dataset[950:1400]] #225 ns window if time division = 100 ns
+        dataAveg = [data - BGcorrection for data in dataset[950:1500]] #275 ns window if time division = 100 ns
         pulaverSing = np.multiply(array("f", dataAveg),1E-3) #NOW [U] = V
         areaSing = integ.simps(pulaverSing, timeAxis, dx=1, even="avg")
         areaList.append(areaSing)
@@ -159,14 +160,14 @@ def pulseAveragePlot(settings):
     ax2.plot([1E6 * point for point in timeAxis], pulseaverage, c="black", label=str(settings["numberOfDataSets"])+" pulse average")
     ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax1.set_ylabel("$U$ / mV")
-    ax1.set_title("$R_{\\mathrm{T}}$=1.14 k$\\Omega$, SiPM bias: 25 V")
+    ax1.set_title("$R_{\\mathrm{T}}$=1.14 k$\\Omega$, SiPM bias: 23 V")
     ax2.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax2.set_ylabel("$U$ / mV")
     ax2.legend()
     fig.tight_layout()
     ax2.text(0.155, 3/5*max(pulseaverage), f'Pulse\ncharge: {pulseCharge} e', fontsize=10)
     ax2.text(0.155, 1/3*max(pulseaverage), f'Pulse\nheight: {pulseHeight} mV', fontsize=10)
-    plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["averagePlotName"])
+    plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["averagePlotName"]+settings["biasVoltage"]+".png")
     plt.show()
 
 def runAnalyze(settings):
