@@ -43,13 +43,13 @@ def UI():
 
     while True:
         #Asking current settings
-        instr.write(":SOUR:VOLT:RANG?")
-        voltRanNow = instr.read()
-        instr.write(":SENS:RANG?")
-        curRanNow = instr.read()
-        instr.write(":SOUR:VOLT:ILIM?")
-        curLimNow = instr.read()
-        info = f"\nPossible output voltage from -505 V to 505 V\n\nSettings at the moment:\nVoltage range: {voltRanNow}\nCurrnent limit: {curLimNow}\nCurrent measurement range: {curRanNow}"
+        #instr.write(":SOUR:VOLT:RANG?")
+        #voltRanNow = instr.read()
+        #instr.write(":SENS:RANG?")
+        #curRanNow = instr.read()
+        #instr.write(":SOUR:VOLT:ILIM?")
+        #curLimNow = instr.read()
+        #info = f"\nPossible output voltage from -505 V to 505 V\n\nSettings at the moment:\nVoltage range: {voltRanNow}\nCurrnent limit: {curLimNow}\nCurrent measurement range: {curRanNow}"
 
         UIDispl = ""
         for key in settings:
