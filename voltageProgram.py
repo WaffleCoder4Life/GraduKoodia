@@ -31,17 +31,25 @@ def UI():
     settings = {"UIsetV" : f"{next(numbers)} Set voltage",
                 "UIsetVRan" : f"{next(numbers)} Set voltage range",
                 "UIsetILim" : f"{next(numbers)} Set current limit",
+                "UIsetIRan" : f"{next(numbers)} Set current measurement range",
                 "UIswitchOff" : f"{next(numbers)} Output off",
                 "UIcloseProgram" : f"{next(numbers)} Close program",
                 "UIInfo" : f"{next(numbers)} Help and list of current settings"}
     
-    instr.write(":SENS:RANG 0.00001") #CURRENT MEASURE RANGE FUTURE FEATURE
-    instr.write(":TRIG:COUNT INF")
+    instr.write(":SENS:RANG 0.00001") #Default measurement range to 10e-6 A
+    instr.write(":TRIG:COUNT INF") #Continuous measurement
 
-    help = "\nVoltage should be given as float\nVoltage range should be given as integer\nCurrent limit should be given as float"
+    help = "\nVoltage should be given as float\nVoltage range should be given as integer\nCurrent limit should be given as float\n"
 
     while True:
-        info = f"\nSettings at the moment:\nVoltage range: {voltageRange}\nCurrnent limit: {currentLimit}"
+        #Asking current settings
+        instr.write(":SOUR:VOLT:RANG?")
+        voltRanNow = instr.read()
+        instr.write(":SENS:RANG?")
+        curRanNow = instr.read()
+        instr.write(":SOUR:VOLT:ILIM?")
+        curLimNow = instr.read()
+        info = f"\nPossible output voltage from -505 V to 505 V\n\nSettings at the moment:\nVoltage range: {voltRanNow}\nCurrnent limit: {curLimNow}\nCurrent measurement range: {curRanNow}"
 
         UIDispl = ""
         for key in settings:
@@ -55,9 +63,6 @@ def UI():
                 volt = float(input("\nGive voltage: "))
             except:
                 print("\nSomething went wrong")
-            #instr.write(":SYST:ZCH:STAT?")
-            #check = instr.read()
-            #if check == "+1": #NEEDS TROUBLESHOOTING
             instr.write(":SYST:ZCH OFF")
             setVoltageFine(instr, volt, currentLimit, voltageRange)
             instr.write(":INIT")
@@ -70,16 +75,31 @@ def UI():
             except:
                 print("\nSomething went wrong")
             voltageRange = vRan
+            instr.write(":INIT")
             print(f"\nVoltage range set to {vRan}")
+            time.sleep(2)
         
         if num == settings["UIsetILim"][0]:
             instr.write(":ABOR")
             try:
-                iLim = float(input("\nGive current limit: ")) #NEED TO FIND POSSIBLE VALUES
+                iLim = float(input("\nPossible values (25e-6, 250e-6, 2.5e-3, 25e-3)\nGive current limit: ")) #NEED TO FIND POSSIBLE VALUES
             except:
                 print("\nSomething went wrong")
             currentLimit = iLim
+            instr.write(":INIT")
             print(f"\nCurrent limit set to {iLim}")
+            time.sleep(2)
+        
+        if num == settings["UIsetIRan"][0]:
+            instr.write("ABOR")
+            try:
+                iRan = float(input("\nPossible values from -0.021 to 0.021\nGive current measurement range: "))
+            except:
+                print("\nSomething went wrong")
+            instr.write(f":SENS:RANG {iRan}")
+            instr.write(":INIT")
+            print(f"Current measurement range set to {iRan}")
+            time.sleep(2)
         
         if num == settings["UIswitchOff"][0]:
             instr.write(":ABOR")
@@ -88,6 +108,7 @@ def UI():
         if num == settings["UIInfo"][0]:
             instr.write(":ABOR")
             print(info + help)
+            instr.write(":INIT")
         
         if num == settings["UIcloseProgram"][0]:
             print("\nHave a nice day!")
