@@ -17,6 +17,12 @@ height_114 = [55.88e-3, 69.09e-3, 80.82e-3, 93.47e-3, 105.69e-3]
 chargeVariances_114 = [10438117743.319704, 9738135644.66893, 9914067545.766144, 12345594056.96445, 10757248453.2531]
 heightVariances_114 = [2.6119117591919212e-05, 3.180451489149771e-05, 2.7775641002944193e-05, 3.579135332517678e-05, 2.605218735308991e-05]
 
+bias_voltage_955 = [25, 25.5, 26, 26.5, 27]
+charge_955 = [2058505.83, 2679292.5 ,3376272.98, 4034768.3, 4784321.85]
+height_955 = [0.06663315750000011, 0.08385928600000009 ,0.10052260050000003, 0.11927636699999997, 0.13728641500000008]
+chargeVariances_955 = [17424842093.9611, 22432254231.79 ,50375851050.9196, 41948388847.450005, 157004015875.4275]
+heightVariances_955 = [2.459890332582704e-05, 2.0248845913135336e-05 ,2.1915163993257338e-05, 2.2464073573900008e-05, 5.929855915790393e-05]
+
 
 def line(x, a, b):
     return a*x + b
@@ -53,7 +59,7 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     heightSigmaError = [np.sqrt(point) for point in heightVariances]
     print(f"Height sigma error: {heightSigmaError}")
 
-    voltage_space = np.linspace(20, 26, 100)
+    voltage_space = np.linspace(22, 28, 100)
     charge_plot_fit = line(voltage_space, chargeResult.params[1], chargeResult.params[0])
     height_plot_fit = line(voltage_space, heightResult.params[1], heightResult.params[0])
 
@@ -82,12 +88,12 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     ax2.set_ylabel("pulse height (V)")
     ax2.legend()
 
-    ax1.set_title("Temperature 1.14 k$\Omega$")
+    ax1.set_title("Temperature 955 $\Omega$")
     plt.xlabel("Bias voltage (V)")
     plt.tight_layout()
-    plt.savefig("./dataCollection/charge_and_height_at_114kOhm.png")
+    plt.savefig("./dataCollection/charge_and_height_at_955Ohm.png")
     plt.show()
     
 
-chargeAndHeightPlot(charge_114, height_114, bias_voltage, chargeVariances_114, heightVariances_114)
+chargeAndHeightPlot(charge_955, height_955, bias_voltage_955, chargeVariances_955, heightVariances_955)
 

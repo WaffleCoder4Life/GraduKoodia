@@ -6,7 +6,10 @@ import time
 import keyboard
 import matplotlib.pyplot as plt
 import dataAnalz.readSourceMeterDataFine as rd
-
+import numpy as np
+from sympy.solvers import solve
+from sympy import Symbol
+import scipy.optimize
 
 """ instrumentlist = {
     "picoammeter": {
@@ -41,10 +44,11 @@ sour = rm.open_resource("GPIB0::22::INSTR")
 
 
 reset = 0
-singleTest = 1
+singleTest = 0
 sweepTest = 0
 sweepAverageTest = 0
-plotSweep = 0
+plotSweep = 1
+plotSweepSqrt = 0
 closeAfter = 1
 
 
@@ -76,18 +80,18 @@ if singleTest:
     
 
 
-filename = "darkCurrentAverage10PointsShutterOpened"
+filename = "IVcurve101Ohm_273K"
 #filename2 = "darkCurrentAverage10PointsShutterClosed2"
-dateFolder = "21032024" #CHANGE AND CReATE NEW FOLDER TO dataCollection
+dateFolder = "28032024" #CHANGE AND CReATE NEW FOLDER TO dataCollection
 
 if sweepTest:
     print("Executing sweep test...")
-    vsf.voltageSweepFine(sour, 50, 25, 26.6, 2.5E-6, filename, "Keithley6487, temperature 1.816 kOhm, IV-curve for dark current with closed shutter and LED power off, voltage step 0.01")
+    vsf.voltageSweepFine(sour, 50, 22, 28, 2.5E-3, filename, "Keithley6487, temperature 1001 Ohm second resistor, IV-curve for LED 6V flat line, voltage step 0.1")
     sour.close()
 
 if sweepAverageTest:
     print("Executing average sweep test...")
-    vsa.voltageSweepAverage(sour, 50, 26.3, 26.67, 2.5E-6, filename, 10, 0.005, "Keithley 6487, temperature 1.820 kOhm, IV-curve with average sweep, 10 points per voltage, dark current with open lid, voltage step 0.005")
+    vsa.voltageSweepAverage(sour, 50, 22, 28, 2.5E-6, filename, 10, 0.01, "Keithley 6487, temperature 983 Ohm, IV-curve with average sweep, 10 points per voltage, dark current with open lid, voltage step 0.01")
 
 
 if closeAfter:
@@ -96,16 +100,39 @@ if closeAfter:
 
 if plotSweep:
     voltageup = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO THE SOURCE
-    currentup = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
+    currentup = [10**(3)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
     #voltageup2 = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename2, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO THE SOURCE
     #currentup2 = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename2, 1)]
     plt.scatter(voltageup, currentup, s=2, c="red", marker="d", label = "Shutter open")
     #plt.scatter(voltageup2, currentup2, s=2, c="green", marker="d", label = "Shutter closed")
     plt.xlabel("$U$ / V")
-    plt.ylabel("$I$ / nA")
+    plt.ylabel("$I$ / mA")
     plt.legend()
     plt.tight_layout()
     plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename)
     plt.show()
 
+def line(x, a, b):
+    return a*x + b
 
+if plotSweepSqrt:
+    voltage = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename, 0)
+    currentSqrt = [np.sqrt(10**(6)*point) for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
+    plt.scatter(voltage, currentSqrt, s=2, c="red", marker="d", label = "Shutter open")
+
+    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[300:], ydata = currentSqrt[300:]) # Gives parameters for a line fit
+    print(voltResult) 
+    x = Symbol("x")
+    lineFit = line(x, voltResult[0][0], voltResult[0][1]) # arguments x, a (slope) and b (intercept)
+    breakdownResult = solve(lineFit, x) # solves x from lineFit y = 0
+    
+    linSpace = np.linspace(23.5, 28, 1000)
+    linePlot = line(linSpace, voltResult[0][0], voltResult[0][1])
+    plt.plot(linSpace, linePlot, color = "black", label = f"Breakdown voltage {breakdownResult}")
+
+    plt.xlabel("$U$ / V")
+    plt.ylabel("$\sqrt{I}$ / $\sqrt{uA}$")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename+"Sqrt")
+    plt.show()

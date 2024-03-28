@@ -7,20 +7,20 @@ import os
 from time import time, sleep
 
 settings = {
-    "pathNameDate" : "21032024",
+    "pathNameDate" : "27032024",
     "fileName" : "darkcountTemp",
     "biasVoltageRange" : 50,
-    "biasVoltage" : 25,
+    "biasVoltage" : 24,
     "biasCurrentLimit" : 2.5E-3,
 
-    "oscVoltageRange" : 16E-3,
+    "oscVoltageRange" : 400E-3,
     "timeRange" : 100E-9,
-    "runTimeSeconds" : 100,
-    "peakHeight" : 0.002,
+    "runTimeSeconds" : 60,
+    "peakHeight" : 0.03, #Used as trigger level and peak filter
 
     "aquireData" : 1,
-    "countPeaks" : 0,
-    "deleteTempAfter" : 0
+    "countPeaks" : 1,
+    "deleteTempAfter" : 1
 
 
 }
@@ -97,7 +97,7 @@ def peakCounter(settings, numberOfDatasets: list):
             i += 1
         darkCounts = 0
         for key in voltdic:
-            peaks = find_peaks(voltdic[key], settings["peakHeight"])
+            peaks = find_peaks(voltdic[key], settings["peakHeight"], 400)
             darkCounts += len(peaks[0])
             plt.plot(voltdic[key])
         print(f"{darkCounts} dark counts in "+str(numberOfDatasets[1])+" seconds.")
