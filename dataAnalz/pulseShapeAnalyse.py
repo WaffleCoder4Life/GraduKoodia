@@ -16,14 +16,14 @@ settings = {
             "channel" : 1,
             "displayVoltRange" : 400E-3,
             "displayTimeRange" : 1E-6,
-            "triggerLevel" : 30E-3,
+            "triggerLevel" : 55E-3,
 
-            "pathNameDate": "27032024",
-            "fileName": "pulseChargeAndHeightTEST", #Adds biasVoltage to the end of the name
-            "biasVoltage" : "24V",
+            "pathNameDate": "28032024",
+            "fileName": "pulseChargeAndHeight", #Adds biasVoltage to the end of the name
+            "biasVoltage" : "LEDtest",
             "numberOfDataSets": 10,
             "backroundEnd" : 950, #Display from 0 to 2000, if no delay trigger at 1000
-            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. Dark counts and temperature 1.14 kOhm",
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. Dark counts and temperature DIFFERENT DEVICE 0.954 kOhm at start",
             
             "averagePlotName" : "100singleCountAverage",
 
@@ -32,7 +32,7 @@ settings = {
             "saveOscilloscopeData" : 0, #Save single screen of data. Change display settings from oscilloscope to choose what to save. Save as fileName1, fileName2 etc.
             "pulseAveragePlot": 1,
             "plotSinglePulse": 0,
-            "captureSingleScreens" : 1, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
+            "captureSingleScreens" : 0, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
 
             "closeAfter" : 1
 }
@@ -110,7 +110,9 @@ def pulseAveragePlot(settings):
     pulaver = np.multiply(array("f", pulseaverage),1E-3) #NOW [U] = V
     area = integ.simps(pulaver, timeAxis, dx=1, even="avg")
     areaforimage = format(area, "e")
-    
+
+    print(f"Height from average image is {max(pulseaverage) - min(pulseaverage)}")
+
     #INTEGRATION FOR INDIVIDUAL PULSES
     areaList = []
     pulseChargeList = []
@@ -122,9 +124,11 @@ def pulseAveragePlot(settings):
         areaList.append(areaSing)
         pulseChargeSing = format(areaSing / (223.87*50*1.602*10**-19), "e")
         pulseChargeList.append(float(pulseChargeSing))
-
         pulseHeightList.append((max(dataAveg) - min(dataAveg))*10**-3)
+        print(f"single height is {(max(dataAveg) - min(dataAveg))*10**-3}")
     
+    
+    print(f"Max height {max(dataAveg)} and min height {min(dataAveg)}")
     average = 0
     for charge in pulseChargeList:
         average += charge
@@ -147,8 +151,6 @@ def pulseAveragePlot(settings):
     variance2 = statistics.variance(pulseHeightList)
     print(f"Pulse height is {average2} with variance of {variance2} and standard deviation of {np.sqrt(variance2)}")
 
-
-
     pulseCharge = format(area / (223.87*50*1.602*10**-19), "e")
     pulseCharge = float(pulseCharge)
     pulseCharge = f"{pulseCharge:.3e}"
@@ -160,7 +162,7 @@ def pulseAveragePlot(settings):
     ax2.plot([1E6 * point for point in timeAxis], pulseaverage, c="black", label=str(settings["numberOfDataSets"])+" pulse average")
     ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax1.set_ylabel("$U$ / mV")
-    ax1.set_title("$R_{\\mathrm{T}}$=1.14 k$\\Omega$, SiPM bias: 23 V")
+    ax1.set_title("$R_{\\mathrm{T}}$=1.14 k$\\Omega$, SiPM bias: "+settings["biasVoltage"])
     ax2.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax2.set_ylabel("$U$ / mV")
     ax2.legend()
