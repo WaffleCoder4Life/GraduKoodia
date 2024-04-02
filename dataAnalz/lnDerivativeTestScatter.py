@@ -1,6 +1,9 @@
-import lnDerivativeScatter as lds
+import lnDerivative as lds
 import matplotlib.pyplot as plt
 
-plot = lds.lnDerivativeScatter("./dataCollection/15032024/10mA_sweep", markerSize=4, marker=".", color="mediumorchid")
-#plt.ylim(-10, 200)
+data= lds.lnDerivative("./dataCollection/15032024/1mA_sweep", 10)
+
+plt.scatter(data[0][0], data[0][1], marker=".", s=15, color="mediumorchid")
+plt.xlabel("$U$ / V")
+plt.ylabel("$\dfrac{\mathrm{d}}{\mathrm{d}U}$ ln$I$")
 plt.show()
