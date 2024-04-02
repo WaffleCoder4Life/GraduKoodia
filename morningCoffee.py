@@ -11,7 +11,7 @@ month = "{:02d}".format(today.month)
 
 newFolder = day + month + str(today.year)
 
-print("Good \'morning\':)")
+print("\nGood \'morning\':)")
 
 pth = parent + newFolder
 

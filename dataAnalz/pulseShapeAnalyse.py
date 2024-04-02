@@ -15,24 +15,24 @@ settings = {
             #Display settings
             "channel" : 1,
             "displayVoltRange" : 400E-3,
-            "displayTimeRange" : 1E-6,
-            "triggerLevel" : 55E-3,
+            "displayTimeRange" : 1E-6, #Needs rework to use smaller than 1E-6 values :")
+            "triggerLevel" : 30E-3,
 
-            "pathNameDate": "28032024",
-            "fileName": "pulseChargeAndHeight", #Adds biasVoltage to the end of the name
-            "biasVoltage" : "LEDtest",
-            "numberOfDataSets": 10,
+            "pathNameDate": "02042024",
+            "fileName": "pulseChargeAndHeightRoomTemp", #Adds biasVoltage to the end of the name
+            "biasVoltage" : "27V",
+            "numberOfDataSets": 100,
             "backroundEnd" : 950, #Display from 0 to 2000, if no delay trigger at 1000
-            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. Dark counts and temperature DIFFERENT DEVICE 0.954 kOhm at start",
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. Dark counts and temperature DIFFERENT DEVICE 1.1 kOhm",
             
             "averagePlotName" : "100singleCountAverage",
 
             "connectDevice" : 1,
-            "setOscilloscopeDisplay" : 0,
+            "setOscilloscopeDisplay" : 1,
             "saveOscilloscopeData" : 0, #Save single screen of data. Change display settings from oscilloscope to choose what to save. Save as fileName1, fileName2 etc.
             "pulseAveragePlot": 1,
             "plotSinglePulse": 0,
-            "captureSingleScreens" : 0, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
+            "captureSingleScreens" : 1, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
 
             "closeAfter" : 1
 }
@@ -106,26 +106,26 @@ def pulseAveragePlot(settings):
     pulseaverage = [point - BGcorrection for point in pulseaveragetemp]
     timeAxis = [point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 0)[:550]]
 
-    #INTEGRATION USING SIMPSON'S RULE
-    pulaver = np.multiply(array("f", pulseaverage),1E-3) #NOW [U] = V
-    area = integ.simps(pulaver, timeAxis, dx=1, even="avg")
+    # INTEGRATION USING SIMPSON'S RULE
+    pulaver = np.multiply(array("f", pulseaverage),1E-3) # NOW [U] = V
+    area = integ.simps(pulaver, timeAxis, dx = 1, even = "avg")
     areaforimage = format(area, "e")
 
     print(f"Height from average image is {max(pulseaverage) - min(pulseaverage)}")
 
-    #INTEGRATION FOR INDIVIDUAL PULSES
+    # INTEGRATION FOR INDIVIDUAL PULSES
     areaList = []
-    pulseChargeList = []
-    pulseHeightList = []
+    pulseChargeList = [] # List of charges counted from individual pulses
+    pulseHeightList = [] # List of heights counted from individual pulses
     for dataset in datasets:
-        dataAveg = [data - BGcorrection for data in dataset[950:1500]] #275 ns window if time division = 100 ns
-        pulaverSing = np.multiply(array("f", dataAveg),1E-3) #NOW [U] = V
-        areaSing = integ.simps(pulaverSing, timeAxis, dx=1, even="avg")
+        dataAveg = [data - BGcorrection for data in dataset[950:1500]] # 275 ns window if time division = 100 ns
+        pulaverSing = np.multiply(array("f", dataAveg),1E-3) # NOW [U] = V
+        areaSing = integ.simps(pulaverSing, timeAxis, dx = 1, even = "avg")
         areaList.append(areaSing)
         pulseChargeSing = format(areaSing / (223.87*50*1.602*10**-19), "e")
         pulseChargeList.append(float(pulseChargeSing))
         pulseHeightList.append((max(dataAveg) - min(dataAveg))*10**-3)
-        print(f"single height is {(max(dataAveg) - min(dataAveg))*10**-3}")
+
     
     
     print(f"Max height {max(dataAveg)} and min height {min(dataAveg)}")

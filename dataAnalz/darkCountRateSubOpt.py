@@ -4,16 +4,20 @@ import matplotlib.pyplot as plt
 import pyvisa as visa
 from deviceControl import setDisplay, setVoltageFine, saveData
 import os
+from time import time
+
+#2 SECOND MEASUREMENT TAKES ABOUT 52 HOURS; SCRATCH THIS coDE
+
 
 settings = {
-    "pathNameDate" : "20032024",
+    "pathNameDate" : "02042024",
     "fileName" : "darkcountTemp",
-    "numberOfDatasets" : 1000,
+    "numberOfDatasets" : 5,
     "biasVoltageRange" : 50,
-    "biasVoltage" : 24,
+    "biasVoltage" : 26.7,
     "biasCurrentLimit" : 2.5E-3,
-    "timeRange" : 100E-6,
-    "peakHeight" : 0.002,
+    "timeRange" : 20E-6,
+    "peakHeight" : 0.05,
     "aquireData" : 1,
     "countPeaks" : 1,
     "deleteTempAfter" : 1
@@ -39,15 +43,20 @@ def aquireData(settings):
     setVoltageFine(sour, settings["biasVoltageRange"], settings["biasVoltage"], settings["biasCurrentLimit"])
     print("Bias voltage set.")
 
-    setDisplay(osc, 1, 16E-3, settings["timeRange"], 0)
+    setDisplay(osc, 1, 800E-3, settings["timeRange"], 0)
     print("Oscilloscope display set.")
     osc.write(":RUN")
     i = 1
     osc.write("CHAN1:DISP 1")
+    
     while i <= settings["numberOfDatasets"]:
-        saveData(osc, settings["fileName"]+str(i), "Temp files for dark count rate", True)
+        before = time()
+        saveData(osc, settings["fileName"]+str(i), "Temp files for dark count rate", True) # Runtime 0.45 s for single save data
+        after = time()
         i += 1
     sour.write("SOUR:VOLT:STAT OFF")
+    
+    print("Mes time " +str(after-before))
     #osc.close()
     #sour.close()
 
@@ -73,11 +82,12 @@ def peakCounter(settings):
         i += 1
     darkCounts = 0
     for key in voltdic:
-        peaks = find_peaks(voltdic[key], settings["peakHeight"])
+        peaks = find_peaks(voltdic[key], settings["peakHeight"], distance = 10)
         darkCounts += len(peaks[0])
         #plt.plot(voltdic[key])
     print(f"{darkCounts} dark counts in "+str(settings["numberOfDatasets"])+" datasets.")
-    darkCountRate = darkCounts / (10*settings["timeRange"]*settings["numberOfDatasets"])
+    darkCountRate = darkCounts / (settings["timeRange"]*settings["numberOfDatasets"])
+    print("Measurement time is " + str(settings["timeRange"]*settings["numberOfDatasets"]))
     print(f"Dark count rate {darkCountRate} Hz")
     #plt.show()
 

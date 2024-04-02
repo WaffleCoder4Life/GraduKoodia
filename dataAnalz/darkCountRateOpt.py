@@ -7,15 +7,15 @@ import os
 from time import time, sleep
 
 settings = {
-    "pathNameDate" : "27032024",
+    "pathNameDate" : "02042024",
     "fileName" : "darkcountTemp",
     "biasVoltageRange" : 50,
-    "biasVoltage" : 24,
+    "biasVoltage" : 26.7,
     "biasCurrentLimit" : 2.5E-3,
 
     "oscVoltageRange" : 400E-3,
-    "timeRange" : 100E-9,
-    "runTimeSeconds" : 60,
+    "timeRange" : 50E-9,
+    "runTimeSeconds" : 10,
     "peakHeight" : 0.03, #Used as trigger level and peak filter
 
     "aquireData" : 1,
@@ -50,6 +50,7 @@ def aquireData(settings):
     negtime = 0
     darkCounts = -1
     while (time() - startTime) < runTime:
+        
         osc.write(":TER?")
         trigger = osc.read().strip()
         before = time()
@@ -63,6 +64,7 @@ def aquireData(settings):
         #    negtime -= after - before
         negtime += after - before
     negtime -= after - before
+    print(negtime)
     numberOfDatasets = i
     sour.write("SOUR:VOLT:STAT OFF")
     print("dark counts:", darkCounts)
