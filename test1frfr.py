@@ -24,7 +24,7 @@ osc = rm.open_resource(list[0])
 
 #osc.write(":RUN")
 
-save.saveData(osc, "darkcount7K21", "Temperature 1.136 kOhm, 1 amplifier, Bias voltage 24 V")
+save.saveData(osc, "oscTest1", "Peak finder testing", False)
 
 
 #gen.generatePulses(osc, 5, 7, 0.000000100)
