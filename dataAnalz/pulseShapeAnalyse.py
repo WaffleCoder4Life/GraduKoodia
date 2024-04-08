@@ -9,30 +9,40 @@ import deviceControl as cont
 import pyvisa as visa
 import statistics
 import os
+"""Saves data from single photon pulses to CSV files and plots their average. Take measurements with different bias voltages and then use plotChargeAndHeight to determine
+   breakdown voltage from pulse charge and height. When measuring charge and height of single pulse with different bias voltages start with an overvoltage of approximately
+   2 V for better pulse shape. Equivalent with pulse height > 50 mV with two amplifiers at 15 V."""
+
 
 settings = {
             "deviceName" : 'USB0::0x2A8D::0x1797::CN56396144::INSTR',
             #Display settings
             "channel" : 1,
             "displayVoltRange" : 400E-3,
-            "displayTimeRange" : 1E-6, #Needs rework to use smaller than 1E-6 values :")
-            "triggerLevel" : 30E-3,
+            "displayTimeRange" : 1E-6, # With 1E-6 saves 2000 points. If changed, need to fix later plottings
+            "triggerLevel" : 35E-3, # Use around 1/2 to 2/3 of single pulse height
+            "peakDistance" : 70, # Adjust if double peaks captured. 400 works in cold temperature and 50-100 in room temperature. (If very low, slows measurement)
 
-            "pathNameDate": "02042024",
+            # ChANGE FOR NEW MEASUREMENTS
+            "pathNameDate": "04042024",
             "fileName": "pulseChargeAndHeightRoomTemp", #Adds biasVoltage to the end of the name
-            "biasVoltage" : "27V",
+            "biasVoltage" : "28V",
+            "temperature" : "1.1 k$\\Omega$ (room temperature)",
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.90 V. Dark counts and temperature DIFFERENT DEVICE 1.1 kOhm",
+
             "numberOfDataSets": 100,
             "backroundEnd" : 950, #Display from 0 to 2000, if no delay trigger at 1000
-            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.96 V. Dark counts and temperature DIFFERENT DEVICE 1.1 kOhm",
+            
             
             "averagePlotName" : "100singleCountAverage",
 
+            # CONTROL
             "connectDevice" : 1,
-            "setOscilloscopeDisplay" : 1,
-            "saveOscilloscopeData" : 0, #Save single screen of data. Change display settings from oscilloscope to choose what to save. Save as fileName1, fileName2 etc.
+            "setOscilloscopeDisplay" : 0,
+            "saveOscilloscopeData" : 0, #Save single screen of data. Change display settings from oscilloscope to choose what to save. Saves as fileName1, fileName2 etc.
             "pulseAveragePlot": 1,
             "plotSinglePulse": 0,
-            "captureSingleScreens" : 1, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
+            "captureSingleScreens" : 0, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
 
             "closeAfter" : 1
 }
@@ -54,9 +64,9 @@ def captureSingleScreens(settings):
     i = 1
     osc.write("CHAN1:DISP 1")
     while i <= settings["numberOfDataSets"]:
-        cont.saveData(osc, settings["fileName"]+settings["biasVoltage"], settings["fileName"]+settings["biasVoltage"]+" "+settings["testDescribtion"], True)
+        cont.saveData(osc, settings["fileName"]+settings["biasVoltage"], settings["fileName"]+str(settings["photoelectronNumber"])+"pe"+" "+settings["testDescribtion"], True)
         temp = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"], 1)
-        if cont.countPeaks(temp, settings["triggerLevel"], 400) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 3, 400) == 0:
+        if cont.countPeaks(temp, settings["triggerLevel"], settings["peakDistance"]) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 3, settings["peakDistance"]) == 0:
             os.rename("./dataCollection/"+settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv","./dataCollection/" + settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+str(i)+".csv")
             i += 1
         else:
@@ -66,7 +76,7 @@ def captureSingleScreens(settings):
 
 def plotSinglePulse(settings):
     """Use to check that pulse is in the middle"""
-    plt.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"], 0)], [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"], 1)])
+    plt.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 0)], [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 1)])
     plt.xlabel("$t$ / $\\mathrm{\\mu}$s")
     plt.ylabel("$U$ / mV")
     plt.show()
@@ -93,23 +103,23 @@ def pulseAveragePlot(settings):
     #AVERAGE OF BACKGROUND FROM ALL DATASETS FROM START TO PULSE
     #AVERAGE OF THE AVERAGE: TO BE SUBTRACTED FROM PULSE DATA TO COMPENSATE BG
     BGaverage = av.averageData(settings["numberOfDataSets"], [dataset[:950] for dataset in datasets])
-
+    
 
     BGcorrectiontemp = 0
     for point in BGaverage:
         BGcorrectiontemp = BGcorrectiontemp + point
     BGcorrection = BGcorrectiontemp / len(BGaverage)
-
+    
 
     #AVERAGE PULSE DATA FROM ALL DATASETS AND SUBTRACT BG CORRECTION
     pulseaveragetemp = av.averageData(settings["numberOfDataSets"], [dataset[950:1500] for dataset in datasets])
     pulseaverage = [point - BGcorrection for point in pulseaveragetemp]
     timeAxis = [point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 0)[:550]]
-
     # INTEGRATION USING SIMPSON'S RULE
     pulaver = np.multiply(array("f", pulseaverage),1E-3) # NOW [U] = V
     area = integ.simps(pulaver, timeAxis, dx = 1, even = "avg")
     areaforimage = format(area, "e")
+
 
     print(f"Height from average image is {max(pulseaverage) - min(pulseaverage)}")
 
@@ -153,22 +163,26 @@ def pulseAveragePlot(settings):
 
     pulseCharge = format(area / (223.87*50*1.602*10**-19), "e")
     pulseCharge = float(pulseCharge)
-    pulseCharge = f"{pulseCharge:.3e}"
-    print(pulseCharge+" e")
+    pulseCharge2 = f"{pulseCharge:.3e}"
+    print(pulseCharge2+" e")
 
     pulseHeight = average2*10**3
-    pulseHeight = f"{pulseHeight:.2f}"
+    pulseHeight2 = f"{pulseHeight:.2f}"
+
+    with open("./DataCollection/"+settings["pathNameDate"]+"/chargeAndHeightData.csv", "a") as file:
+        # Saves pulse charge, variance, height, variance to csv file.
+        file.write(str(average)+","+str(variance)+","+str(average2)+","+str(variance2)+"\n")
     
     ax2.plot([1E6 * point for point in timeAxis], pulseaverage, c="black", label=str(settings["numberOfDataSets"])+" pulse average")
     ax1.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax1.set_ylabel("$U$ / mV")
-    ax1.set_title("$R_{\\mathrm{T}}$=1.14 k$\\Omega$, SiPM bias: "+settings["biasVoltage"])
+    ax1.set_title("$R_{\\mathrm{T}}$="+settings["temperature"]+", SiPM bias: "+settings["biasVoltage"])
     ax2.set_xlabel("$t$ / $\\mathrm{\\mu}$s")
     ax2.set_ylabel("$U$ / mV")
     ax2.legend()
     fig.tight_layout()
-    ax2.text(0.155, 3/5*max(pulseaverage), f'Pulse\ncharge: {pulseCharge} e', fontsize=10)
-    ax2.text(0.155, 1/3*max(pulseaverage), f'Pulse\nheight: {pulseHeight} mV', fontsize=10)
+    ax2.text(0.155, 3/5*max(pulseaverage), f'Pulse\ncharge: {pulseCharge2} e', fontsize=10)
+    ax2.text(0.155, 1/3*max(pulseaverage), f'Pulse\nheight: {pulseHeight2} mV', fontsize=10)
     plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["averagePlotName"]+settings["biasVoltage"]+".png")
     plt.show()
 

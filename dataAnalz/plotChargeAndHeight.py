@@ -5,23 +5,69 @@ import numpy as np
 from sympy.solvers import solve
 from sympy import Symbol
 
-
+# Cyro temp
 bias_voltage = [23, 23.5, 24, 24.5, 25]
 charge_177 = [6.452e5, 7.992e5, 9.601e5, 1.141e6, 1.262e6]
 height_177 = [48.68e-3, 59.98e-3, 73.27e-3, 86.53e-3, 100.02e-3]
 chargeVariances_177 = [7212804641.634136, 11488199275.871, 11362204858.791971, 11019029374.851696, 15731294021.8476]
 heightVariances_177 = [19.189393979174604e-6, 22.106181864009134e-6, 23.29947722562905e-6, 30.567529806792937e-6, 57.80650456546565e-6]
 
+# Cyro temp
 charge_114 = [6.958e5, 8.662e5, 1.049e6, 1.215e6, 1.388e6]
 height_114 = [55.88e-3, 69.09e-3, 80.82e-3, 93.47e-3, 105.69e-3]
 chargeVariances_114 = [10438117743.319704, 9738135644.66893, 9914067545.766144, 12345594056.96445, 10757248453.2531]
 heightVariances_114 = [2.6119117591919212e-05, 3.180451489149771e-05, 2.7775641002944193e-05, 3.579135332517678e-05, 2.605218735308991e-05]
 
+# Cyro temp
 bias_voltage_955 = [25, 25.5, 26, 26.5, 27]
 charge_955 = [2058505.83, 2679292.5 ,3376272.98, 4034768.3, 4784321.85]
 height_955 = [0.06663315750000011, 0.08385928600000009 ,0.10052260050000003, 0.11927636699999997, 0.13728641500000008]
 chargeVariances_955 = [17424842093.9611, 22432254231.79 ,50375851050.9196, 41948388847.450005, 157004015875.4275]
 heightVariances_955 = [2.459890332582704e-05, 2.0248845913135336e-05 ,2.1915163993257338e-05, 2.2464073573900008e-05, 5.929855915790393e-05]
+
+# Room temp
+bias_voltage_roomTemp = [26, 26.5, 27, 27.5, 28]
+charge_roomTemp = [2106801.91, 2798939.61, 3505097.1, 4292470.91, 5087945.05]
+chargeVariance_roomTemp = [40454299551.841896, 70023977664.4779, 532279573918.07, 447997675686.9819, 1119720650161.8875]
+height_roomTemp = [0.07340702600000014, 0.09208039050000005, 0.10964822749999993, 0.1309346570000001, 0.14896480550000007]
+heightVariance_roomTemp = [2.1424206204771737e-05, 1.834010977286338e-05, 2.9822726844210873e-05, 3.607866361868787e-05, 4.5699885450398736e-05]
+
+settings = {
+            # CSV file unpacking
+            "pathNameDate" : "04042024",
+            "measurementID" : "roomTemp", # Use for example the temperature.
+            "csvFileName" : "chargeAndHeightData",
+
+            # Charge and height plottings
+            "imageTitle" : "Room temperature 1.1 k$\Omega$",
+            "imageFileName" : "roomtemperature1_1kOhm",
+
+            # Command control
+            "plot" : 1,
+            "readCSV" : 0,
+
+
+}
+
+
+# Use for easy list creation. Copy printed lists to save and use data.
+def readCsv(settings):
+    charge = []
+    charge_var = []
+    height = []
+    height_var = []
+    with open("./dataCollection/"+settings["pathNameDate"]+"/"+settings["csvFileName"]+".csv") as file:
+        for row in file:
+            rowAsList = row.split(",")
+            charge.append(float(rowAsList[0]))
+            charge_var.append(float(rowAsList[1]))
+            height.append(float(rowAsList[2]))
+            height_var.append(float(rowAsList[3]))
+    print("charge_"+settings["measurementID"]+f" = {charge}")
+    print("chargeVariance_"+settings["measurementID"]+f" = {charge_var}")
+    print("height_"+settings["measurementID"]+f" = {height}")
+    print("heightVariance_"+settings["measurementID"]+f" = {height_var}")
+
 
 
 def line(x, a, b):
@@ -88,12 +134,20 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     ax2.set_ylabel("pulse height (V)")
     ax2.legend()
 
-    ax1.set_title("Temperature 955 $\Omega$")
+    ax1.set_title(settings["imageTitle"])
     plt.xlabel("Bias voltage (V)")
     plt.tight_layout()
-    plt.savefig("./dataCollection/charge_and_height_at_955Ohm.png")
+    plt.savefig("./dataCollection/"+settings["imageFileName"]+".png")
     plt.show()
     
 
-chargeAndHeightPlot(charge_955, height_955, bias_voltage_955, chargeVariances_955, heightVariances_955)
+def run():
 
+    if settings["readCSV"]:
+        readCsv(settings)
+
+    if settings["plot"]:
+        chargeAndHeightPlot(charge_roomTemp, height_roomTemp, bias_voltage_roomTemp, chargeVariance_roomTemp, heightVariance_roomTemp)
+
+
+run()

@@ -14,8 +14,7 @@ print(list)
 
 osc = rm.open_resource(list[0])
 #sour = rm.open_resource(list[1])
-#osc.write("*IDN?")
-#print(osc.read())
+
 
 
 #set.setDisplay(osc, 1, 0.2, 2, 0.03)

@@ -9,17 +9,17 @@ import readOscilloscopeData as rosc
 #Write all different laserIntensities to list and same amount of colors for plotting. 'today' needs to be changed (different file locations for each day)
 
  
-laserIntensity = ["25uA", "50uA", "100uA", "200uA","500uA", "1mA", "5mA"]
+laserIntensity = ["50uA", "100uA", "200uA","500uA", "1mA"]
 
 
 
 colours = ["indigo","blue","lightseagreen","green","yellowgreen","gold", "darkorange", "red"]
-colours1 = [cm.inferno(i) for i in np.linspace(0, 1, 10)]
+colours1 = [cm.inferno(i) for i in np.linspace(0, 1, 6)]
 
 #CHANGE PATH NAME BY CHANGING DATE
-today = ""
+today = "04042024"
 
-""" #CREATES dICTIONARY WITH KEY - VOLTAGE LIST
+#CREATES dICTIONARY WITH KEY - VOLTAGE LIST
 voltdic = {}
 for amps in laserIntensity:
     voltdic["LED {0}".format(amps)] = [rsf.readSourceMeterDataFine("dataCollection/"+today+"/{0}_sweep".format(amps), 0)] #SAVE VOLTAGE LIST IN DICTIONARY
@@ -31,24 +31,24 @@ for amps in laserIntensity:
     curdic["LED {0}".format(amps)] = [1E6 * point for point in rsf.readSourceMeterDataFine("dataCollection/"+today+"/{0}_sweep".format(amps), 1)] #SAVE CURRENT LIST IN DICTIONARY
 
 
- """
 
 
-""" i = 0
+# Plots all IV-curves to same image
+i = 0
 for key1, key2 in zip(curdic, voltdic):
     plt.scatter(voltdic[key2], curdic[key1], s=2, marker="d", color=colours1[i], cmap="inferno", label = str(key1))
-    i+=1 """
+    i+=1
 
 """ for name, color in zip(laserIntensity, colours):
     logplot.logScatter("dataCollection/"+today+"/"+name+"_sweep", marker = "d", markerSize=2, color = color, label = name) """
 
-voltage = rosc.readOscilloscopeData("03042024/oscTest1", 1)
+""" voltage = rosc.readOscilloscopeData("03042024/oscTest1", 1)
 time = rosc.readOscilloscopeData("03042024/oscTest1", 0)
-plt.scatter(time, voltage, s=2, marker="d", color="red", cmap="inferno")
+plt.scatter(time, voltage, s=2, marker="d", color="red", cmap="inferno") """
 
 plt.xlabel("$U$ / V")
-plt.ylabel("$I$ / $\\mathrm{\\mu}$A")
+plt.ylabel("$I$ / $\\mathrm{\\mu}$A") # Check that scaling corresponds to correct unit (1E-6 = uA etc.)
 plt.legend()
 plt.tight_layout()
-#plt.savefig("./dataCollection/"+today+"/Photos/IVcurvesLog")
+plt.savefig("./dataCollection/"+today+"/Photos/IVcurves")
 plt.show()
