@@ -37,8 +37,8 @@ def UI():
                 "UIInfo" : f"{next(numbers)} Help and list of current settings"}
     
     instr.write(":SENS:RANG 0.00001") #Default measurement range to 10e-6 A
-    instr.write(":TRIG:COUNT INF") #Continuous measurement
 
+    info = "\nNo info available at the moment\n"
     help = "\nVoltage should be given as float\nVoltage range should be given as integer\nCurrent limit should be given as float\n"
 
     while True:
@@ -65,6 +65,7 @@ def UI():
                 print("\nSomething went wrong")
             instr.write(":SYST:ZCH OFF")
             setVoltageFine(instr, volt, currentLimit, voltageRange)
+            instr.write(":TRIG:COUNT INF") #Continuous measurement
             instr.write(":INIT")
 
         
@@ -75,6 +76,7 @@ def UI():
             except:
                 print("\nSomething went wrong")
             voltageRange = vRan
+            instr.write(":TRIG:COUNT INF") #Continuous measurement
             instr.write(":INIT")
             print(f"\nVoltage range set to {vRan}")
             time.sleep(2)
@@ -86,6 +88,7 @@ def UI():
             except:
                 print("\nSomething went wrong")
             currentLimit = iLim
+            instr.write(":TRIG:COUNT INF") #Continuous measurement
             instr.write(":INIT")
             print(f"\nCurrent limit set to {iLim}")
             time.sleep(2)
@@ -97,6 +100,7 @@ def UI():
             except:
                 print("\nSomething went wrong")
             instr.write(f":SENS:RANG {iRan}")
+            instr.write(":TRIG:COUNT INF") #Continuous measurement
             instr.write(":INIT")
             print(f"Current measurement range set to {iRan}")
             time.sleep(2)
@@ -108,6 +112,7 @@ def UI():
         if num == settings["UIInfo"][0]:
             instr.write(":ABOR")
             print(info + help)
+            instr.write(":TRIG:COUNT INF") #Continuous measurement
             instr.write(":INIT")
         
         if num == settings["UIcloseProgram"][0]:
