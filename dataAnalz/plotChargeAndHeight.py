@@ -32,15 +32,22 @@ chargeVariance_roomTemp = [40454299551.841896, 70023977664.4779, 532279573918.07
 height_roomTemp = [0.07340702600000014, 0.09208039050000005, 0.10964822749999993, 0.1309346570000001, 0.14896480550000007]
 heightVariance_roomTemp = [2.1424206204771737e-05, 1.834010977286338e-05, 2.9822726844210873e-05, 3.607866361868787e-05, 4.5699885450398736e-05]
 
+# Liquid nitrogen 224 Ohm platinum
+bias_voltage_nitrogen = [23, 23.5, 24, 24.5, 25]
+charge_nitrogenTemp = [2814346.16, 3407381.64, 4024812.81, 4638770.43, 5249577.99]
+chargeVariance_nitrogenTemp = [8288929784.6344, 13140367807.3904, 11480877242.4939, 12404071025.8851, 48588424488.2099]
+height_nitrogenTemp = [0.06328231951351586, 0.06717912939343706, 0.07888276189016419, 0.09133768760118186, 0.1011809236088232]
+heightVariance_nitrogenTemp = [4.464328552156294e-06, 9.48613702041515e-06, 1.4569162170530072e-05, 1.2365769734924242e-05, 1.630649160160504e-05]
+
 settings = {
             # CSV file unpacking
-            "pathNameDate" : "04042024",
-            "measurementID" : "roomTemp", # Use for example the temperature.
-            "csvFileName" : "chargeAndHeightData",
+            "pathNameDate" : "09042024", # Change to current date
+            "measurementID" : "nitrogenTemp", # Use for example the temperature.
+            "csvFileName" : "chargeAndHeightData", # Same name by default
 
             # Charge and height plottings
-            "imageTitle" : "Room temperature 1.1 k$\Omega$",
-            "imageFileName" : "roomtemperature1_1kOhm",
+            "imageTitle" : "Liquid nitrogen temperature 224 $\Omega$",
+            "imageFileName" : "liquidNitrogen_224Ohm",
 
             # Command control
             "plot" : 1,
@@ -105,7 +112,7 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     heightSigmaError = [np.sqrt(point) for point in heightVariances]
     print(f"Height sigma error: {heightSigmaError}")
 
-    voltage_space = np.linspace(22, 28, 100)
+    voltage_space = np.linspace(19.5, 25.5, 100) # Change to fit bias voltage range
     charge_plot_fit = line(voltage_space, chargeResult.params[1], chargeResult.params[0])
     height_plot_fit = line(voltage_space, heightResult.params[1], heightResult.params[0])
 
@@ -147,7 +154,7 @@ def run():
         readCsv(settings)
 
     if settings["plot"]:
-        chargeAndHeightPlot(charge_roomTemp, height_roomTemp, bias_voltage_roomTemp, chargeVariance_roomTemp, heightVariance_roomTemp)
+        chargeAndHeightPlot(charge_nitrogenTemp, height_nitrogenTemp, bias_voltage_nitrogen, chargeVariance_nitrogenTemp, heightVariance_nitrogenTemp)
 
 
 run()

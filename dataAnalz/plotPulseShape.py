@@ -18,7 +18,7 @@ settings = {
             "deviceName" : 'USB0::0x2A8D::0x1797::CN56396144::INSTR',
 
             # 1 p.e. pulse height to be used for other values
-            "singlePhotonHeight" : 90E-3,
+            "singlePhotonHeight" : 50E-3,
 
             # Display settings
             "channel" : 1,
@@ -28,25 +28,25 @@ settings = {
 
             # Measurement settings
             "photoelectronNumber" : 1, # Choose which p.e. to measure. 1, 2, 3 or 4 in room temp. In cold 1, 2 or 3.
-            "numberOfDataSets" : 30, # Choose number of datasets to be taken for the average plot
-            "biasVoltage" : "27_01V", # Use same voltage for measurements. Biasvoltage = breakdownVoltage + 2.5 V, V_bd to be determined beforehand.
+            "numberOfDataSets" : 1, # Choose number of datasets to be taken for the average plot
+            "biasVoltage" : "23_2V", # Use same voltage for measurements. Biasvoltage = breakdownVoltage + 2.5 V, V_bd to be determined beforehand.
             "peakDistance" : 200, # Set low enough to only capture single pulses
 
             # File settings
-            "pathNameDate" : "08042024", # Run morningCoffee.py first and then change todays date for correct file path
-            "fileName" : "roomTempPulseShape",
-            "testDescribtion" : "Pulse shapes in room temp for different amount of photoelectrons",
-            "averagePlotName" : "roomTemp1PE", # Name for image to be saved
-            "pelist" : [1, 2, 3, 4], # Write all p.e. to be plotted in plotAll function
+            "pathNameDate" : "09042024", # Run morningCoffee.py first and then change todays date for correct file path
+            "fileName" : "liqNitTempPulseShape",
+            "testDescribtion" : "Pulse shapes in liquid nitrogen (225 Ohm plat) for different amount of photoelectrons",
+            "averagePlotName" : "liwqNitTemp1PE", # Name for image to be saved
+            "pelist" : [1, 2, 3], # Write all p.e. to be plotted in plotAll function
 
             # Control
             "connectDevice" : 1, # Connect pyvisa resource
             "setDisplay" : 1, # Set display or set it manually and disable this
-            "captureData" : 0, # Capture numberOfDatasets amount of single screens
-            "plotSinglePulse" : 0, # Plot single pulse for chechking that everything is fine
-            "plotSingleAndAverage" : 1, # Plots all single pulses and their average in the same image and then average on new image, use to chechk that no bad pulses in average
+            "captureData" : 1, # Capture numberOfDatasets amount of single screens
+            "plotSinglePulse" : 1, # Plot single pulse for chechking that everything is fine
             "plotAverage" : 0, # Plots average from taken datasets
-            "plotAll" : 1 # Plots all p.e. in same image
+            "plotSingleAndAverage" : 1, # Plots all single pulses and their average in the same image and then average on new image, use to chechk that no bad pulses in average
+            "plotAll" : 0 # Plots all p.e. in same image
 
 }
 

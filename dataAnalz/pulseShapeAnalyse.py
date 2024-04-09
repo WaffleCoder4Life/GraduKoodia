@@ -6,6 +6,7 @@ import scipy.integrate as integ
 from array import array
 import numpy as np
 import deviceControl as cont
+from scipy.signal import find_peaks
 import pyvisa as visa
 import statistics
 import os
@@ -20,29 +21,29 @@ settings = {
             "channel" : 1,
             "displayVoltRange" : 400E-3,
             "displayTimeRange" : 1E-6, # With 1E-6 saves 2000 points. If changed, need to fix later plottings
-            "triggerLevel" : 35E-3, # Use around 1/2 to 2/3 of single pulse height
-            "peakDistance" : 70, # Adjust if double peaks captured. 400 works in cold temperature and 50-100 in room temperature. (If very low, slows measurement)
+            "triggerLevel" : 65E-3, # Use around 2/3 of single pulse height
+            "peakDistance" : 150, # Adjust if double peaks captured. 400 works in cold temperature and 50-100 in room temperature. (If very low, slows measurement)
 
             # ChANGE FOR NEW MEASUREMENTS
-            "pathNameDate": "04042024",
-            "fileName": "pulseChargeAndHeightRoomTemp", #Adds biasVoltage to the end of the name
-            "biasVoltage" : "28V",
-            "temperature" : "1.1 k$\\Omega$ (room temperature)",
-            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.90 V. Dark counts and temperature DIFFERENT DEVICE 1.1 kOhm",
+            "pathNameDate": "09042024",
+            "fileName": "pulseChargeAndHeightLiqNitTemp", #Adds biasVoltage to the end of the name
+            "biasVoltage" : "25V",
+            "temperature" : "220.5 $\\Omega$ (liquid nitrogen temperature)",
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.90 V. Dark counts and temperature DIFFERENT DEVICE 220.5 Ohm",
 
             "numberOfDataSets": 100,
             "backroundEnd" : 950, #Display from 0 to 2000, if no delay trigger at 1000
-            
+            "filterBeforePeak" : 20E-3, # Checks if data value before pulse is higher than this value and filters it out. Used to filter noisy pulses
             
             "averagePlotName" : "100singleCountAverage",
 
             # CONTROL
             "connectDevice" : 1,
-            "setOscilloscopeDisplay" : 0,
+            "setOscilloscopeDisplay" : 1,
             "saveOscilloscopeData" : 0, #Save single screen of data. Change display settings from oscilloscope to choose what to save. Saves as fileName1, fileName2 etc.
             "pulseAveragePlot": 1,
             "plotSinglePulse": 0,
-            "captureSingleScreens" : 0, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
+            "captureSingleScreens" : 1, #Captures NumberOfDataSets times a single pulse shape from oscilloscope
 
             "closeAfter" : 1
 }
@@ -64,9 +65,9 @@ def captureSingleScreens(settings):
     i = 1
     osc.write("CHAN1:DISP 1")
     while i <= settings["numberOfDataSets"]:
-        cont.saveData(osc, settings["fileName"]+settings["biasVoltage"], settings["fileName"]+str(settings["photoelectronNumber"])+"pe"+" "+settings["testDescribtion"], True)
+        cont.saveData(osc, settings["fileName"]+settings["biasVoltage"], settings["fileName"]+settings["biasVoltage"]+" "+settings["testDescribtion"], True)
         temp = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"], 1)
-        if cont.countPeaks(temp, settings["triggerLevel"], settings["peakDistance"]) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 3, settings["peakDistance"]) == 0:
+        if cont.countPeaks(temp, settings["triggerLevel"], settings["peakDistance"]) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 2, settings["peakDistance"]) == 0 and temp[990] < settings["filterBeforePeak"]:
             os.rename("./dataCollection/"+settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv","./dataCollection/" + settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+str(i)+".csv")
             i += 1
         else:
@@ -134,7 +135,7 @@ def pulseAveragePlot(settings):
         areaList.append(areaSing)
         pulseChargeSing = format(areaSing / (223.87*50*1.602*10**-19), "e")
         pulseChargeList.append(float(pulseChargeSing))
-        pulseHeightList.append((max(dataAveg) - min(dataAveg))*10**-3)
+        pulseHeightList.append((max(dataAveg))*10**-3)
 
     
     
