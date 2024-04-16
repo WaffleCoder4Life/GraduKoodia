@@ -9,7 +9,7 @@ import readOscilloscopeData as rosc
 #Write all different laserIntensities to list and same amount of colors for plotting. 'today' needs to be changed (different file locations for each day)
 
  
-laserIntensity = ["50uA", "100uA", "200uA","500uA", "1mA"]
+laserIntensity = ["100uA", "200uA","500uA", "1mA"]
 
 
 
@@ -17,7 +17,7 @@ colours = ["indigo","blue","lightseagreen","green","yellowgreen","gold", "darkor
 colours1 = [cm.inferno(i) for i in np.linspace(0, 1, 6)]
 
 #CHANGE PATH NAME BY CHANGING DATE
-today = "04042024"
+today = "16042024"
 
 #CREATES dICTIONARY WITH KEY - VOLTAGE LIST
 voltdic = {}

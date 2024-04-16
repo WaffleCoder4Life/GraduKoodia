@@ -39,23 +39,66 @@ chargeVariance_nitrogenTemp = [8288929784.6344, 13140367807.3904, 11480877242.49
 height_nitrogenTemp = [0.06328231951351586, 0.06717912939343706, 0.07888276189016419, 0.09133768760118186, 0.1011809236088232]
 heightVariance_nitrogenTemp = [4.464328552156294e-06, 9.48613702041515e-06, 1.4569162170530072e-05, 1.2365769734924242e-05, 1.630649160160504e-05]
 
+# secound cooling cyckle, 1.174 kOhm
+bias_voltage_1174 = [23.5, 24, 24.5, 25, 25.5]
+charge_1_174kOhm = [845223.873, 991921.4830000002, 1180063.2659999998, 1361648.53, 1542682.91]
+chargeVariance_1_174kOhm = [8896233762.13837, 7266477172.16561, 11710504729.192244, 13618546605.5091, 12980616797.9219]
+height_1_174kOhm = [0.06063978083401898, 0.07201918168586344, 0.08440656971737083, 0.09774098751551336, 0.1099117556325746]
+heightVariance_1_174kOhm = [1.4928300037418931e-05, 2.0005203519348224e-05, 2.2042494691517947e-05, 2.663945938769572e-05, 3.96173959411806e-05]
+
+# secound cooling cyckle, 1.174 kOhm
+bias_voltage_1720 = [23.5, 24, 24.5, 25, 25.5]
+charge_1_720kOhm = [779460.8780000003, 964822.7130000001, 1131760.672, 1305792.477, 1540651.24]
+chargeVariance_1_720kOhm = [8730141387.792717, 10551729814.28373, 13695522962.674816, 17844497494.731373, 19810637183.5824]
+height_1_720kOhm = [0.05914273790902051, 0.07194320179587821, 0.08622401461106112, 0.09858664728645897, 0.11181965277308047]
+heightVariance_1_720kOhm = [1.6355056835877525e-05, 1.748797356142702e-05, 2.381084057473337e-05, 2.581058551536464e-05, 2.4902538067833114e-05]
+
+# secound cooling cyckle, 1.174 kOhm, second run
+bias_voltage_1720_2 = [23, 23.5, 24, 24.5, 25]
+charge_1_720kOhm_2 = [636531.164, 786681.9139999996, 960773.646, 1129894.2069999997, 1327928.264]
+chargeVariance_1_720kOhm_2 = [11807525193.372904, 12814142693.985403, 14661608561.172684, 21256569153.47905, 18262271183.943905]
+height_1_720kOhm_2 = [0.04881167334629678, 0.05975286214169381, 0.07293559521649144, 0.08584479222662378, 0.09760631416491031]
+heightVariance_1_720kOhm_2 = [1.007381716623333e-05, 1.9708098556740163e-05, 2.01815075630937e-05, 1.9582808414541428e-05, 2.0289657034372735e-05]
+
+# second cooling cyckle, 3.750 kOhm
+bias_voltage_3_750kOhm = [23, 23.5, 24, 24.5, 25]
+charge_3_750kOhm = [611849.5710000001, 771890.3670000001, 943490.9829999997, 1146676.3809999998, 1302952.38]
+chargeVariance_3_750kOhm = [11020328060.06226, 8130048798.556612, 11326322909.971611, 13116719957.19034, 14445859822.5156]
+height_3_750kOhm = [0.04908070267108466, 0.05671931583672606, 0.07097387105242992, 0.08553262088648214, 0.09799685630195391]
+heightVariance_3_750kOhm = [1.1590358431414138e-05, 9.296365306661377e-06, 1.6606453342699748e-05, 1.806259414844926e-05, 2.0297819258620185e-05]
+
+# second cooling cyckle, 3.850 kOhm
+bias_voltage_3_850kOhm = [23, 23.5, 24, 24.5, 25]
+charge_3_850kOhm = [641271.4504999999, 783263.0495000001, 958372.1249999997, 1084335.6225000003, 1291351.213]
+chargeVariance_3_850kOhm = [15331228465.4289, 13752482072.2549, 16448414399.065775, 13572345501.730244, 13381990053.788431]
+height_3_850kOhm = [0.04914261221158375, 0.05954371114970103, 0.0723018687711173, 0.07847305022477033, 0.09683659196475858]
+heightVariance_3_850kOhm = [1.2077759089759732e-05, 1.6204957018343658e-05, 1.560855580252237e-05, 4.1418161030653236e-06, 9.5666815621758e-06]
+
+
 settings = {
             # CSV file unpacking
-            "pathNameDate" : "09042024", # Change to current date
-            "measurementID" : "nitrogenTemp", # Use for example the temperature.
+            "pathNameDate" : "16042024", # Change to current date
+            "measurementID" : "3_850kOhm", # Use for example the temperature.
             "csvFileName" : "chargeAndHeightData", # Same name by default
 
             # Charge and height plottings
-            "imageTitle" : "Liquid nitrogen temperature 224 $\Omega$",
-            "imageFileName" : "liquidNitrogen_224Ohm",
+            "imageTitle" : "3_850 k$\Omega$",
+            "imageFileName" : "chargeAndHeight_3850Ohm",
 
             # Command control
             "plot" : 1,
-            "readCSV" : 0,
+            "readCSV" : 1,
 
 
 }
 
+def run():
+
+    if settings["readCSV"]:
+        readCsv(settings)
+
+    if settings["plot"]:
+        chargeAndHeightPlot(charge_3_850kOhm, height_3_850kOhm, bias_voltage_3_850kOhm, chargeVariance_3_850kOhm, heightVariance_3_850kOhm)
 
 # Use for easy list creation. Copy printed lists to save and use data.
 def readCsv(settings):
@@ -148,13 +191,8 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     plt.show()
     
 
-def run():
-
-    if settings["readCSV"]:
-        readCsv(settings)
-
-    if settings["plot"]:
-        chargeAndHeightPlot(charge_nitrogenTemp, height_nitrogenTemp, bias_voltage_nitrogen, chargeVariance_nitrogenTemp, heightVariance_nitrogenTemp)
 
 
-run()
+
+if __name__ == "__main__":
+    run()

@@ -55,7 +55,7 @@ def voltageSweepAverage(instrument, voltageRange: float, startVoltage_V: float, 
                 temp = []
                 while voltage >= startVoltage_V:
                     instrument.write(":SOUR:VOLT " + str(voltage))  # Set voltage
-                    time.sleep(3)
+                    time.sleep(0.5)
                     i = 0
                     tempCurr = []
                     while i < measurementsPerVoltage:
@@ -79,7 +79,7 @@ def voltageSweepAverage(instrument, voltageRange: float, startVoltage_V: float, 
                 instrument.write(":FORM:DATA ASCii") #CHOOSE DATA FORMAT
                 while voltage <= endVoltage_V:
                     instrument.write(":SOUR:VOLT " + str(voltage))  # Set voltage
-                    time.sleep(3) #Wait after setting voltage
+                    time.sleep(0.5) #Wait after setting voltage
                     i = 0
                     tempCurr = []
                     while i < measurementsPerVoltage:

@@ -21,17 +21,17 @@ settings = {
             "channel" : 1,
             "displayVoltRange" : 400E-3,
             "displayTimeRange" : 1E-6, # With 1E-6 saves 2000 points. If changed, need to fix later plottings
-            "triggerLevel" : 65E-3, # Use around 2/3 of single pulse height
-            "peakDistance" : 150, # Adjust if double peaks captured. 400 works in cold temperature and 50-100 in room temperature. (If very low, slows measurement)
+            "triggerLevel" : 50E-3, # Use around 2/3 of single pulse height
+            "peakDistance" : 20, # Adjust if double peaks captured. Lower value -> filters double peaks better. (If very low, filters single peaks due to noise)
 
             # ChANGE FOR NEW MEASUREMENTS
-            "pathNameDate": "09042024",
-            "fileName": "pulseChargeAndHeightLiqNitTemp", #Adds biasVoltage to the end of the name
-            "biasVoltage" : "25V",
-            "temperature" : "220.5 $\\Omega$ (liquid nitrogen temperature)",
-            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.90 V. Dark counts and temperature DIFFERENT DEVICE 220.5 Ohm",
+            "pathNameDate": "16042024",
+            "fileName": "pulseChargeAndHeight_3_870kOhm", #Adds biasVoltage to the end of the name.
+            "biasVoltage" : "25V", # SET VOLTAGE WITH ANOTHER PROGRAM
+            "temperature" : "3.870 k$\\Omega$ (180 mK)",
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.90 V. Dark counts and temperature 3.3870 kOhm",
 
-            "numberOfDataSets": 100,
+            "numberOfDataSets": 200,
             "backroundEnd" : 950, #Display from 0 to 2000, if no delay trigger at 1000
             "filterBeforePeak" : 20E-3, # Checks if data value before pulse is higher than this value and filters it out. Used to filter noisy pulses
             
@@ -51,6 +51,7 @@ settings = {
 if settings["connectDevice"]:
     rm = visa.ResourceManager()
     osc = rm.open_resource(settings["deviceName"])
+    print("Device connected")
 
 
 def saveOscilloscopeData(settings):
@@ -64,11 +65,14 @@ def captureSingleScreens(settings):
     osc.write(":RUN")
     i = 1
     osc.write("CHAN1:DISP 1")
+    path = "./dataCollection/"+settings["pathNameDate"]+"/pulseCharge"+settings["biasVoltage"]
+    if not os.path.exists(path):
+        os.makedirs(path)
     while i <= settings["numberOfDataSets"]:
         cont.saveData(osc, settings["fileName"]+settings["biasVoltage"], settings["fileName"]+settings["biasVoltage"]+" "+settings["testDescribtion"], True)
         temp = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"], 1)
-        if cont.countPeaks(temp, settings["triggerLevel"], settings["peakDistance"]) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 2, settings["peakDistance"]) == 0 and temp[990] < settings["filterBeforePeak"]:
-            os.rename("./dataCollection/"+settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv","./dataCollection/" + settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+str(i)+".csv")
+        if cont.countPeaks(temp, settings["triggerLevel"]-0.005, settings["peakDistance"]) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 2, settings["peakDistance"]) == 0 and temp[990] < settings["filterBeforePeak"]:
+            os.rename("./dataCollection/"+settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv","./dataCollection/" + settings["pathNameDate"]+"/pulseCharge"+settings["biasVoltage"]+"/"+settings["fileName"]+settings["biasVoltage"]+str(i)+".csv")
             i += 1
         else:
             os.remove("./dataCollection/" + settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv")
@@ -77,7 +81,7 @@ def captureSingleScreens(settings):
 
 def plotSinglePulse(settings):
     """Use to check that pulse is in the middle"""
-    plt.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 0)], [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 1)])
+    plt.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/pulseCharge"+settings["biasVoltage"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 0)], [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/pulseCharge"+settings["biasVoltage"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 1)])
     plt.xlabel("$t$ / $\\mathrm{\\mu}$s")
     plt.ylabel("$U$ / mV")
     plt.show()
@@ -95,10 +99,10 @@ def pulseAveragePlot(settings):
     i = 1
     datasets = []
     while i <= settings["numberOfDataSets"]:
-        tempor = [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"{0}".format(str(i)), 1)]
+        tempor = [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/pulseCharge"+settings["biasVoltage"]+"/"+settings["fileName"]+settings["biasVoltage"]+"{0}".format(str(i)), 1)]
         #NOW [U] = mV
         datasets.append(tempor)
-        ax1.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"{0}".format(str(i)), 0)], tempor)
+        ax1.plot([1E6 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/pulseCharge"+settings["biasVoltage"]+"/"+settings["fileName"]+settings["biasVoltage"]+"{0}".format(str(i)), 0)], tempor)
         i += 1
 
     #AVERAGE OF BACKGROUND FROM ALL DATASETS FROM START TO PULSE
@@ -115,7 +119,7 @@ def pulseAveragePlot(settings):
     #AVERAGE PULSE DATA FROM ALL DATASETS AND SUBTRACT BG CORRECTION
     pulseaveragetemp = av.averageData(settings["numberOfDataSets"], [dataset[950:1500] for dataset in datasets])
     pulseaverage = [point - BGcorrection for point in pulseaveragetemp]
-    timeAxis = [point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 0)[:550]]
+    timeAxis = [point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/pulseCharge"+settings["biasVoltage"]+"/"+settings["fileName"]+settings["biasVoltage"]+"1", 0)[:550]]
     # INTEGRATION USING SIMPSON'S RULE
     pulaver = np.multiply(array("f", pulseaverage),1E-3) # NOW [U] = V
     area = integ.simps(pulaver, timeAxis, dx = 1, even = "avg")

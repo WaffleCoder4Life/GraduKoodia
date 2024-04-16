@@ -43,18 +43,20 @@ sour = rm.open_resource("GPIB0::22::INSTR")
 
 
 
-reset = 0 # Reset source meter before starting measurements
+reset = 1 # Reset source meter before starting measurements
 singleTest = 0
 sweepTest = 0
-sweepAverageTest = 0 # Change sweep parameters from belowe
-plotSweep = 0 # Plot IV curves from sweep
+sweepAverageTest = 1 # Change sweep parameters from belowe
+plotSweep = 1 # Plot IV curves from sweep
 plotSweepSqrt = 1 # Plot sqrt(I)V curves from sweep
 closeAfter = 1 # Close source meter and connection
 
 
-filename = "breakdownVoltageLiquidNitrogen"
-#filename2 = "darkCurrentAverage10PointsShutterClosed2"
-dateFolder = "09042024" #CHANGE 
+filename = "1mA_sweep"
+#filename2 = "secoundBreakdown_openShutter_1169Ohm"
+dateFolder = "16042024" #CHANGE 
+ledInt = "1 mA"
+temperature = "3.810"
 
 
 if reset:
@@ -88,12 +90,12 @@ if singleTest:
 
 if sweepTest:
     print("Executing sweep test...")
-    vsf.voltageSweepFine(sour, 50, 22, 27, 2.5E-3, filename, "Keithley6487, temperature 1001 Ohm second resistor, IV-curve for LED 6V flat line, voltage step 0.1")
+    vsf.voltageSweepFine(sour, 50, 25, 27, 2.5E-3, filename, "Keithley6487, temperature 1001 Ohm second resistor, IV-curve for LED 6V flat line, voltage step 0.1")
     sour.close()
 
 if sweepAverageTest:
     print("Executing average sweep test...")
-    vsa.voltageSweepAverage(sour, 50, 20, 24.5, 2.5E-3, filename, 10, 0.1, "Keithley 6487, temperature 1.1k Ohm (room temp), IV-curve with average sweep, 10 points per voltage, LED 50 uA, voltage step 0.1")
+    vsa.voltageSweepAverage(sour, 50, 21, 23.5, 2.5E-3, filename, 10, 0.01, f"Keithley 6487, temperature {temperature} kOhm, IV-curve with average sweep, 10 points per voltage, LED {ledInt}, voltage step 0.01")
 
 
 if closeAfter:
@@ -102,13 +104,13 @@ if closeAfter:
 
 if plotSweep:
     voltageup = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO THE SOURCE
-    currentup = [10**(3)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
+    currentup = [10**(6)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
     #voltageup2 = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename2, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO THE SOURCE
-    #currentup2 = [10**(9)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename2, 1)]
-    plt.scatter(voltageup, currentup, s=2, c="red", marker="d", label = "20 uA")
-    #plt.scatter(voltageup2, currentup2, s=2, c="green", marker="d", label = "Shutter closed")
+    #currentup2 = [10**(6)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename2, 1)]
+    plt.scatter(voltageup, currentup, s=2, c="red", marker="d", label = f"LED {ledInt}")
+    #plt.scatter(voltageup2, currentup2, s=2, c="green", marker="d", label = "Shutter open")
     plt.xlabel("$U$ / V")
-    plt.ylabel("$I$ / mA")
+    plt.ylabel("$I$ / uA")
     plt.legend()
     plt.tight_layout()
     plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename)
@@ -120,15 +122,15 @@ def line(x, a, b):
 if plotSweepSqrt:
     voltage = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename, 0)
     currentSqrt = [np.sqrt(10**(6)*point) for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
-    plt.scatter(voltage, currentSqrt, s=2, c="red", marker="d", label = "20 uA LED")
+    plt.scatter(voltage, currentSqrt, s=2, c="red", marker="d", label = str(ledInt)+" LED")
 
-    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[10:20], ydata = currentSqrt[10:20]) # Gives parameters for a line fit, check ctarting point from image
+    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[110:], ydata = currentSqrt[110:]) # Gives parameters for a line fit, check ctarting point from image
     print(voltResult) 
     x = Symbol("x")
     lineFit = line(x, voltResult[0][0], voltResult[0][1]) # arguments x, a (slope) and b (intercept)
     breakdownResult = solve(lineFit, x) # solves x from lineFit y = 0
     
-    linSpace = np.linspace(20.5, 24.5, 1000) # Change linspace to match used voltage range in sweep
+    linSpace = np.linspace(20.5, 24, 1000) # Change linspace to match used voltage range in sweep
     linePlot = line(linSpace, voltResult[0][0], voltResult[0][1])
     plt.plot(linSpace, linePlot, color = "black", label = f"Linear fit, V_bd {breakdownResult}")
 
@@ -136,5 +138,5 @@ if plotSweepSqrt:
     plt.ylabel("$\sqrt{I}$ / $\sqrt{uA}$")
     plt.legend()
     plt.tight_layout()
-    #plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename+"Sqrt")
+    plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename+"Sqrt")
     plt.show()

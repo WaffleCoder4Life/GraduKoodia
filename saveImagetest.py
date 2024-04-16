@@ -1,6 +1,7 @@
 import pyvisa as visa
 #from Keithley import setVoltage as sv
 from KeySightConn import setDisplay as set
+import time
 
 
 rm = visa.ResourceManager()
@@ -9,6 +10,7 @@ print(list)
 
 osc = rm.open_resource(list[0])
 #sour = rm.open_resource(list[2])
+osc.write("*IDN?")
 osc.write("*IDN?")
 print(osc.read())
 
