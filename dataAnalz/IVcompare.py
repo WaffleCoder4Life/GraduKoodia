@@ -19,10 +19,14 @@ colours1 = [cm.inferno(i) for i in np.linspace(0, 0.5, 6)]
 colours2 = [cm.inferno(i) for i in np.linspace(0.5, 1, 6)]
 
 #CHANGE PATH NAME BY CHANGING DATE
-fileDate1 = "11042024"
+fileDate1 = "16042024"
 bdvoltage1 = 21
-fileDate2 = "16042024"
+fileDate2 = "19042024"
 bdvoltage2 = 21
+
+# Image save settings
+fileDateImag = "19042024"
+name = "IVcompare3_8kOhm"
 
 
 def bdvoltageIndex(fileDate, bdvolt):
@@ -56,14 +60,14 @@ fig, ax1 = plt.subplots()
 # Plots all IV-curves to same image
 i = 0
 for key1, key2 in zip(curdic1, voltdic1):
-    ax1.scatter(voltdic1[key2], curdic1[key1], s=2, marker="d", color=colours1[i], cmap="inferno", label = "1.676 kOhm "+str(key1))
+    ax1.scatter(voltdic1[key2], curdic1[key1], s=2, marker="d", color=colours1[i], cmap="inferno", label = "3.81 kOhm first"+str(key1))
     i+=1
 ax1.set_xlabel("Overvoltage / V")
 ax2 = ax1.twinx()
 
 i = 0
 for key3, key4 in zip(curdic2, voltdic2):
-    ax2.scatter(voltdic2[key4], curdic2[key3], s=2, marker="d", color=colours2[i], cmap="Greens", label = "3.810 kOhm"+str(key3))
+    ax2.scatter(voltdic2[key4], curdic2[key3], s=2, marker="d", color=colours2[i], cmap="Greens", label = "3.810 kOhm second"+str(key3))
     i+=1
 
 """ for name, color in zip(laserIntensity, colours):
@@ -78,5 +82,5 @@ ax2.legend(loc = "upper right")
 ax1.set_ylabel("$I$ / $\\mathrm{\\mu}$A") # Check that scaling corresponds to correct unit (1E-6 = uA etc.)
 ax2.set_ylabel("$I$ / $\\mathrm{\\mu}$A")
 fig.tight_layout()
-plt.savefig("./dataCollection/"+"16042024"+"/Photos/IVcurvesCompare")
+plt.savefig("./dataCollection/"+fileDateImag+"/Photos/"+name)
 plt.show()

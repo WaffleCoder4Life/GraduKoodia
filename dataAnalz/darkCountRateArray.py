@@ -13,7 +13,7 @@ import numpy as np
 
 
 settings = {
-    "pathNameDate" : "11042024",
+    "pathNameDate" : "19042024",
     "fileName" : "darkcountTemp",
     "numberOfDatasets" : 1000, # Runtime is numberOfDatasets * timeRange * 10 000. Starts lagging with too big datasets.
     "runTimes" : 5, # Runs measurement this many times, used to avoid list overflows. Total measurement interval is
@@ -72,24 +72,29 @@ def aquireData(settings):
     sour.write("SYST:ZCH OFF") # Turn off zero corrections
     sour.write(":SENS:RANG 0.00001") # SET CURRENT MEASURE RANGE (not needed but stops the device from clicking)
     setVoltageFine(sour, settings["biasVoltageRange"], settings["biasVoltage"], settings["biasCurrentLimit"])
+    sour.write(":TRIG:COUNT INF") #Continuous measurement
+    sour.write(":INIT") # Not needed but shows the continous current on source display
     print("Bias voltage set.")
 
     setDisplay(osc, 1, 800E-3, settings["timeRange"], 0)
     print("Oscilloscope display set.")
-    osc.write(":RUN")
+    
     osc.write("CHAN1:DISP 1")
 
 
 
+    
+
+    osc.write("WAV:POIN 40000")
+    osc.write(":RUN")
+    
+    
     # Set all measurement options only once and before the while loop
     t.sleep(2)
-    j = 1
-    averageDarkRate = 0
-    
     yIncrement = float(osc.query(":WAVeform:YINCREMENT?"))
     yOrigin = float(osc.query("WAVeform:YORIGIN?"))
-    osc.write("WAV:POIN 40000")
-
+    j = 1
+    averageDarkRate = 0
     
     
     while j <= settings["runTimes"]:
@@ -101,7 +106,7 @@ def aquireData(settings):
             #saveData(osc, settings["fileName"]+str(i), "Temp files for dark count rate", True) # Runtime 0.45 s for single save data
 
             # Trying optimized versions for saving data
-            binaryDataArray[i] = osc.query_binary_values(":WAVeform:DATA?", datatype = "B") # Creates a list of lists with binary data read from oscilloscope. Runtime < 0.1 s, 80 000 datapoints
+            binaryDataArray[i] = osc.query_binary_values(":WAVeform:DATA?", datatype = "B") # Creates a array of lists with binary data read from oscilloscope. Runtime < 0.1 s, 80 000 datapoints
             i += 1
         
         

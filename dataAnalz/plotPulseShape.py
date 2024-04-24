@@ -31,22 +31,28 @@ settings = {
             "numberOfDataSets" : 30, # Choose number of datasets to be taken for the average plot
             "biasVoltage" : "23_5V", # Use same voltage for measurements. Biasvoltage = breakdownVoltage + 2.5 V, V_bd to be determined beforehand.
             "peakDistance" : 200, # Set low enough to only capture single pulses
+            "peakProminence" : 0.05, # How much pulse must 'stand out' from surrending signal
 
             # File settings
-            "pathNameDate" : "10042024", # Run morningCoffee.py first and then change todays date for correct file path
-            "fileName" : "1_169kOhmTempPulseShapeAveg",
-            "testDescribtion" : "Pulse shapes at 1.169 kOhm for different amount of photoelectrons, overvoltage 23_5V",
-            "averagePlotName" : "allPE1_169kOhm", # Name for image to be saved
+            "pathNameDate" : "22042024", # Run morningCoffee.py first and then change todays date for correct file path
+            "pathNameDate2" : "10042024",
+            "fileName" : "3_78kOhmTempPulseShapeAveg",
+            "temperature" : "3.78 k$\\Omega$",
+            "fileName2" : "1_169kOhmTempPulseShapeAveg",
+            "temperature2" : "1.17 k$\\Omega$",
+            "testDescribtion" : "Pulse shapes at 3.78 kOhm for different amount of photoelectrons, overvoltage 23_5V",
+            "averagePlotName" : "allPE3_78kOhm", # Name for image to be saved
             "pelist" : [1, 2, 3], # Write all p.e. to be plotted in plotAll function
 
             # Control
             "connectDevice" : 1, # Connect pyvisa resource
             "setDisplay" : 1, # Set display or set it manually and disable this
-            "captureData" : 1, # Capture numberOfDatasets amount of single screens
+            "captureData" : 0, # Capture numberOfDatasets amount of single screens
             "plotSinglePulse" : 0, # Plot single pulse for chechking that everything is fine
-            "plotAverage" : 1, # Plots average from taken datasets
-            "plotSingleAndAverage" : 1, # Plots all single pulses and their average in the same image and then average on new image, use to chechk that no bad pulses in average
+            "plotAverage" : 0, # Plots average from taken datasets
+            "plotSingleAndAverage" : 0, # Plots all single pulses and their average in the same image and then average on new image, use to chechk that no bad pulses in average
             "plotAll" : 0, # Plots all p.e. in same image
+            "compare1PE" : 1, #Compare single PE pulses from different files. Change pathNameDate, pathNameDate2 and file names accordingly
             "closeAfter" : 1
 
 }
@@ -62,7 +68,7 @@ def setOscilloscopeDisplay(settings):
     print("Display set")
 
 def captureSingleScreens(settings):
-    peakHeight = settings["singlePhotonHeight"]*settings["photoelectronNumber"]*(9/10) # Add *(9/10) for single photon average
+    peakHeight = settings["singlePhotonHeight"]*settings["photoelectronNumber"]*(5/10) # Add *(5/10) for single photon average
     osc.write(":RUN")
     i = 1
     osc.write("CHAN1:DISP 1")
@@ -156,6 +162,52 @@ def plotAll(settings):
     plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["averagePlotName"]+"allpe"+".png")
     plt.show()
 
+def compare1PE(settings):
+    #SAVE DATASETS FROM DARKCOUNTS TO A LIST AND CHANGES V TO mV
+    #SCATTERPLOT OF ALL DATASETS WITH ns TIME AXIS
+    i = 1
+    datasets = []
+    datasets2 = []
+    while i <= settings["numberOfDataSets"]:
+        tempor = [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+str(settings["photoelectronNumber"])+"pe"+"{0}".format(str(i)), 1)]
+        #NOW [U] = mV
+        datasets.append(tempor)
+        tempor2 = [1E3 * point for point in rod.readOscilloscopeData(settings["pathNameDate2"]+"/"+settings["fileName2"]+str(settings["photoelectronNumber"])+"pe"+"{0}".format(str(i)), 1)]
+        datasets2.append(tempor2)
+        i += 1
+
+    # AVERAGE OF BACKGROUND FROM ALL DATASETS FROM START TO PULSE
+    # AVERAGE OF THE AVERAGE: TO BE SUBTRACTED FROM PULSE DATA TO COMPENSATE BG
+    BGaverage = av.averageData(settings["numberOfDataSets"], [dataset[:450] for dataset in datasets]) # With time range of 50 ns/division takes 999 datapoints
+    BGcorrectiontemp = 0
+    for point in BGaverage:
+        BGcorrectiontemp = BGcorrectiontemp + point
+    BGcorrection = BGcorrectiontemp / len(BGaverage)
+
+    BGaverage2 = av.averageData(settings["numberOfDataSets"], [dataset[:450] for dataset in datasets2]) # With time range of 50 ns/division takes 999 datapoints
+    BGcorrectiontemp2 = 0
+    for point in BGaverage2:
+        BGcorrectiontemp2 = BGcorrectiontemp2 + point
+    BGcorrection2 = BGcorrectiontemp2 / len(BGaverage2)
+
+    #AVERAGE PULSE DATA FROM ALL DATASETS AND SUBTRACT BG CORRECTION
+    pulseaveragetemp = av.averageData(settings["numberOfDataSets"], [dataset[400:] for dataset in datasets])
+    pulseaverage = [point - BGcorrection for point in pulseaveragetemp]
+    timeAxis = [point for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/"+settings["fileName"]+str(settings["photoelectronNumber"])+"pe"+"1", 0)[400:]]
+    
+    pulseaveragetemp2 = av.averageData(settings["numberOfDataSets"], [dataset[400:] for dataset in datasets2])
+    pulseaverage2 = [point - BGcorrection2 for point in pulseaveragetemp2]
+    timeAxis2 = [point for point in rod.readOscilloscopeData(settings["pathNameDate2"]+"/"+settings["fileName2"]+str(settings["photoelectronNumber"])+"pe"+"1", 0)[400:]]
+
+    plt.plot([(1E9 * point)-250 for point in timeAxis], pulseaverage, c="tomato", label=str(settings["numberOfDataSets"])+" pulse average at "+settings["temperature"])
+    plt.plot([(1E9 * point)-250 for point in timeAxis2], pulseaverage2, c="steelblue", label=str(settings["numberOfDataSets"])+" pulse average at "+settings["temperature2"])
+    plt.xlabel("$t$ / ns")
+    plt.ylabel("$U$ / mV")
+    plt.xlim(-50, 250)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+"1PEcompare"+".png")
+    plt.show()
 
 def runMeasurement(settings):
 
@@ -173,7 +225,10 @@ def runMeasurement(settings):
     
     if settings["plotAll"]:
         plotAll(settings)
-    
+
+    if settings["compare1PE"]:
+        compare1PE(settings)
+
     if settings["closeAfter"]:
         osc.close()
 

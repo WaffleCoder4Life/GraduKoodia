@@ -54,7 +54,7 @@ closeAfter = 1 # Close source meter and connection
 
 filename = "1mA_sweep"
 #filename2 = "secoundBreakdown_openShutter_1169Ohm"
-dateFolder = "16042024" #CHANGE 
+dateFolder = "19042024" #CHANGE 
 ledInt = "1 mA"
 temperature = "3.810"
 
@@ -95,7 +95,7 @@ if sweepTest:
 
 if sweepAverageTest:
     print("Executing average sweep test...")
-    vsa.voltageSweepAverage(sour, 50, 21, 23.5, 2.5E-3, filename, 10, 0.01, f"Keithley 6487, temperature {temperature} kOhm, IV-curve with average sweep, 10 points per voltage, LED {ledInt}, voltage step 0.01")
+    vsa.voltageSweepAverage(sour, 50, 21, 23.5, 2.5E-3, filename, 5, 0.01, f"Keithley 6487, temperature {temperature} kOhm, IV-curve with average sweep, 10 points per voltage, LED {ledInt}, voltage step 0.01")
 
 
 if closeAfter:
