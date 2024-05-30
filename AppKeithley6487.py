@@ -1,5 +1,6 @@
 import pyvisa as visa
 import time
+import PhotocurrGUI as pg
 
 #Usable on Keithley 6487 source-meter
 
@@ -32,6 +33,7 @@ def UI():
                 "UIsetVRan" : f"{next(numbers)} Set voltage range",
                 "UIsetILim" : f"{next(numbers)} Set current limit",
                 "UIsetIRan" : f"{next(numbers)} Set current measurement range",
+                "UIphotGUI": f"{next(numbers)} Start photocurrent UI",
                 "UIswitchOff" : f"{next(numbers)} Output off",
                 "UIcloseProgram" : f"{next(numbers)} Close program",
                 "UIInfo" : f"{next(numbers)} Help and list of current settings"}
@@ -104,6 +106,13 @@ def UI():
             instr.write(":INIT")
             print(f"Current measurement range set to {iRan}")
             time.sleep(2)
+        
+        if num == settings["UIphotGUI"][0]:
+            try:
+                pg.iScreen(instr)
+            except:
+                print("\nSomething went wrong, continuing anyway")
+
         
         if num == settings["UIswitchOff"][0]:
             instr.write(":ABOR")
