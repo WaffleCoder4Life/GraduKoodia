@@ -64,7 +64,7 @@ def setDisplay(instrument, chan: int, voltageRange_V: float, timeRange_s: float,
     return settings
 
 
-def countPeaks(data: list, h: float, d, p = 0.05) -> int:
+def countPeaks(data: list, h: float, d, p = 0) -> int:
     """data, peak height V -> number of peaks"""
 
     x = np.array(data)

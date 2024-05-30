@@ -21,11 +21,13 @@ import scipy.optimize
     }
 } """
 
-print("Test connection")
-rm = visa.ResourceManager()
-list = rm.list_resources()
-print(list)
-
+# connect
+if False:
+    print("Test connection")
+    rm = visa.ResourceManager()
+    list = rm.list_resources()
+    print(list)
+    sour = rm.open_resource("GPIB0::22::INSTR")
 #for id in rm.list_resources():
 #    try:
 #        instr = rm.open_resource(id)
@@ -36,27 +38,31 @@ print(list)
 #    except:
 #        pass
 
-sour = rm.open_resource("GPIB0::22::INSTR")
+
 
 #sour.write("*IDN?")
 #print(sour.read())
 
 
 
-reset = 1 # Reset source meter before starting measurements
+reset = 0 # Reset source meter before starting measurements
 singleTest = 0
 sweepTest = 0
-sweepAverageTest = 1 # Change sweep parameters from belowe
-plotSweep = 1 # Plot IV curves from sweep
+sweepAverageTest = 0 # Change sweep parameters from belowe
+plotSweep = 0 # Plot IV curves from sweep
 plotSweepSqrt = 1 # Plot sqrt(I)V curves from sweep
-closeAfter = 1 # Close source meter and connection
+closeAfter = 0 # Close source meter and connection
 
 
-filename = "1mA_sweep"
+filename = "100uA_sweepPt380Ohm"
 #filename2 = "secoundBreakdown_openShutter_1169Ohm"
-dateFolder = "19042024" #CHANGE 
-ledInt = "1 mA"
-temperature = "3.810"
+dateFolder = "26042024" #CHANGE 
+ledInt = "100 uA"
+temperature = "Pt 1100 Ohm"
+startVoltage = 23.5
+endVoltage = 27
+voltageStep = 0.1
+pointsPerVoltage = 5
 
 
 if reset:
@@ -95,7 +101,7 @@ if sweepTest:
 
 if sweepAverageTest:
     print("Executing average sweep test...")
-    vsa.voltageSweepAverage(sour, 50, 21, 23.5, 2.5E-3, filename, 5, 0.01, f"Keithley 6487, temperature {temperature} kOhm, IV-curve with average sweep, 10 points per voltage, LED {ledInt}, voltage step 0.01")
+    vsa.voltageSweepAverage(sour, 50, startVoltage, endVoltage, 2.5E-3, filename, pointsPerVoltage, voltageStep, f"Keithley 6487, temperature {temperature} kOhm, IV-curve with average sweep from {startVoltage} V to {endVoltage} V, {pointsPerVoltage} points per voltage, LED {ledInt}, voltage step {voltageStep} V")
 
 
 if closeAfter:
@@ -109,6 +115,7 @@ if plotSweep:
     #currentup2 = [10**(6)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename2, 1)]
     plt.scatter(voltageup, currentup, s=2, c="red", marker="d", label = f"LED {ledInt}")
     #plt.scatter(voltageup2, currentup2, s=2, c="green", marker="d", label = "Shutter open")
+    print(len(voltageup))
     plt.xlabel("$U$ / V")
     plt.ylabel("$I$ / uA")
     plt.legend()
@@ -121,18 +128,25 @@ def line(x, a, b):
 
 if plotSweepSqrt:
     voltage = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename, 0)
-    currentSqrt = [np.sqrt(10**(6)*point) for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
+    dataset = rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)
+    fixedDataset = []
+    for data in dataset:
+        if data < 0:
+            fixedDataset.append(0)
+        else:
+            fixedDataset.append(data)
+    currentSqrt = [np.sqrt(10**(6)*point) for point in fixedDataset]
     plt.scatter(voltage, currentSqrt, s=2, c="red", marker="d", label = str(ledInt)+" LED")
-
-    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[110:], ydata = currentSqrt[110:]) # Gives parameters for a line fit, check ctarting point from image
+    print(len(voltage))
+    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[50:75], ydata = currentSqrt[50:75]) # Gives parameters for a line fit, check ctarting point from image
     print(voltResult) 
     x = Symbol("x")
     lineFit = line(x, voltResult[0][0], voltResult[0][1]) # arguments x, a (slope) and b (intercept)
     breakdownResult = solve(lineFit, x) # solves x from lineFit y = 0
     
-    linSpace = np.linspace(20.5, 24, 1000) # Change linspace to match used voltage range in sweep
+    linSpace = np.linspace(20, 24, 1000) # Change linspace to match used voltage range in sweep
     linePlot = line(linSpace, voltResult[0][0], voltResult[0][1])
-    plt.plot(linSpace, linePlot, color = "black", label = f"Linear fit, V_bd {breakdownResult}")
+    plt.plot(linSpace, linePlot, color = "black", label = f"Linear fit, V_bd {breakdownResult[0]:.3f}")
 
     plt.xlabel("$U$ / V")
     plt.ylabel("$\sqrt{I}$ / $\sqrt{uA}$")

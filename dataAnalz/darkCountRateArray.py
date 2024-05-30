@@ -13,18 +13,19 @@ import numpy as np
 
 
 settings = {
-    "pathNameDate" : "19042024",
+    "pathNameDate" : "29042024",
     "fileName" : "darkcountTemp",
     "numberOfDatasets" : 1000, # Runtime is numberOfDatasets * timeRange * 10 000. Starts lagging with too big datasets.
     "runTimes" : 5, # Runs measurement this many times, used to avoid list overflows. Total measurement interval is
     "biasVoltageRange" : 50,
-    "biasVoltage" : 23.5,
+    "biasVoltage" : 27,
     "biasCurrentLimit" : 2.5E-3,
     "timeRange" : 20E-6, # Sets oscilloscope screen width. 20E-6 is good value to use in room temp.
-    "peakHeight" : 0.04, # Check before measurement. Example if single peak height is 70 mV, then 0.05 is good value to use.
-    "peakDistance" : 300, # Check before measurement with testSingleShot. 40 000 datapoints and 300 works fine.
-    "aquireData" : 1, # Aquires data and prints out dark count rate.
-    "testSingleShot" : 0,
+    "peakHeight" : 0.06, # Check before measurement. Example if single peak height is 70 mV, then 0.05 is good value to use.
+    "peakDistance" : 200, # Check before measurement with testSingleShot. 40 000 datapoints and 300 works fine.
+
+    "aquireData" : 0, # Aquires data and prints out dark count rate.
+    "testSingleShot" : 1,
  }
 
 

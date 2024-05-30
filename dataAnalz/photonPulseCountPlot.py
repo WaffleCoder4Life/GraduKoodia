@@ -10,15 +10,16 @@ from scipy.optimize import curve_fit
 
 settings = {
 
-    "pathNameDate" : "24042024",
-    "fileName" : "photonDistribution1_88kOhm5.5VLED",
+    "pathNameDate" : "26042024",
+    "fileName" : "HeightListMath",
     "plotName" : "photonDistributionLED5Vbias",
-    "biasVoltage" : "23.5",
+    "biasVoltage" : "23",
     "numberOfDatasets" : 5000,
 
     "plotPoissonFit" : 0,
     "countLEDplot" : 0,
     "poissonParameterFit" : 0, # Shit no work
+    "plotPoissonHeight" : 0,
 
 }
 
@@ -28,7 +29,14 @@ meanCount = [3.276, 3.903, 4.612, 5.437, 6.037, 6.928]
 
 
 def modifiedPoissonian(n, l, q):
-    return ((1-q)*q**n)/((np.exp(l))-1)*(laguerre(n)(-l*((1-q)/q))-1)
+    return ((1-q)*q**n)/((np.exp(l))-1)#*(laguerre(n)(-l*((1-q)/q))-1)
+
+xdata = np.linspace(1,5,5)
+ydata = [modifiedPoissonian(point, 1.4, 0.21) for point in xdata]
+print(ydata)
+print(xdata)
+plt.scatter(xdata, ydata)
+plt.show()
 
 
 def line(x,a,b):
@@ -108,6 +116,52 @@ def plotPoissonFit(settings):
     #plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["plotName"]+settings["biasVoltage"]+".png")
     plt.show()
 
+def plotPoissonHeight(settings):
+    heightList = []
+    # with open("./dataCollection/"+settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+".csv", "r") as file:
+    #     for row in file:
+    #         heightList.append(float(row.strip()))
+    # heightList = [round(point,1) for point in heightList]
+    # heightCounts = Counter(heightList)
+    # heightCounts = dict(sorted(heightCounts.items()))
+
+    with open("./dataCollection/"+settings["pathNameDate"]+"/"+settings["fileName"]+settings["biasVoltage"]+".csv", "r") as file:
+        for row in file:
+            if float(row.strip()) == 9.9e+37: # Oscilloscope returns 9.9e+37 when no height available = 0
+                heightList.append(0)
+            else:
+                heightList.append(float(row.strip()))
+    print(heightList)
+    heightList = [round(point/0.04,0) for point in heightList]
+    print(heightList)
+    heightCounts = Counter(heightList)
+    heightCounts = dict(sorted(heightCounts.items()))
+    print(heightCounts)
+
+    poisson_lambda = 0
+    i = 0
+    for key in heightCounts:
+        poisson_lambda += i*float(heightCounts[key])
+        #print(i*float(heightCounts[key]))
+        i += 1
+    poisson_lambda /= len(heightList)
+    print(f"Mean value of photons {poisson_lambda}")
+    poisdata = np.random.poisson(poisson_lambda, 10000*len(heightList))
+    length = len(heightCounts)
+    labels2, counts2 = np.unique(poisdata, return_counts=True)
+    counts2 = [point/10000 for point in counts2[:length]]
+    labels2 = labels2[:length]
+    #labels2 = [point for point in range(-1, len(labels2), 1)]
+    #counts2.insert(0, 0)
+    print(counts2)
+    print(labels2)
+    plt.bar(labels2, counts2, width = 1, edgecolor = "black", color = "orange", label = "Poissonian fit $\\mathrm{\\lambda}$="+str(poisson_lambda))
+    plt.legend()
+
+    print(heightCounts)
+    plt.scatter(labels2, heightCounts.values(), marker = "s", color = "black")
+    plt.show()
+    
 def countLEDplot(settings):
     plt.plot(LEDvolt, meanCount, marker = "s", color = "cyan")
     plt.ylabel("Mean number of photons")
@@ -126,3 +180,6 @@ if __name__ == "__main__":
     
     if settings["countLEDplot"]:
         countLEDplot(settings)
+    
+    if settings["plotPoissonHeight"]:
+        plotPoissonHeight(settings)

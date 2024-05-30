@@ -8,6 +8,7 @@ GUItimer = None
 def iScreen(Keithley6487):
     polling_rate = None
     device = Keithley6487
+    
 
     def func():
         # Replace this with your actual function
@@ -21,7 +22,7 @@ def iScreen(Keithley6487):
         device.write(":FORM:DATA ASCii") #CHOOSE DATA FORMAT
         device.write(":INIT") #TRIGGER MEASUREMENT
         device.write(":SENS:DATA?") #ASK FOR DATA
-        GUIval = 1
+        GUIval = device.read()
         return GUIval
 
 
@@ -33,7 +34,7 @@ def iScreen(Keithley6487):
         else:
             number = fetch_i()
         text_box.delete('1.0', tk.END)
-        text_box.insert(tk.END, str(number), 'center')
+        text_box.insert(tk.END, f"{float(number):.3g}", 'center')
         global GUItimer
         global polling_rate
         if GUItimer is not None:
@@ -51,7 +52,7 @@ def iScreen(Keithley6487):
 
     def resize_text(event):
         # Calculate new font size based on window size
-        new_font_size = int((event.height) / 1.6)
+        new_font_size = int((event.height) / 4)
         text_box.configure(font=("TkDefaultFont", new_font_size))
 
     def stop_timer():

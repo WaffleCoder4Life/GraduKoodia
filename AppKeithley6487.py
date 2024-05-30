@@ -38,6 +38,10 @@ def UI():
                 "UIcloseProgram" : f"{next(numbers)} Close program",
                 "UIInfo" : f"{next(numbers)} Help and list of current settings"}
     
+    
+    instr.write("*RST")  #Return 6487 to GPIB defaults, USE BEFORE DISCONNECTING SIGNALS
+    instr.write("SYST:ZCH OFF")
+    
     instr.write(":SENS:RANG 0.00001") #Default measurement range to 10e-6 A
 
     info = "\nNo info available at the moment\n"

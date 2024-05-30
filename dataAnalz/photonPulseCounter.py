@@ -13,15 +13,15 @@ from collections import Counter
 settings = {
 
     # File settings
-    "pathNameDate" : "24042024",
+    "pathNameDate" : "26042024",
     "fileName" : "photonStatistics5V",
     "testDescribtion" : "Photon counts in 3.72 kOhm",
     "plotName" : "photonDistribution1_88kOhm5.5V",
     "fileNamePhotonDistribution" : "photonDistribution1_88kOhm5.5VLED",
 
     # Measurement settings
-    "numberOfDatasets" : 5000, # How many pulses are recorded
-    "biasVoltage" : "26",
+    "numberOfDatasets" : 50, # How many pulses are recorded
+    "biasVoltage" : "23",
 
     "peakHeight" : 0.09, # Check before measurement from 1 P.E. height. Use around 80% of 1 P.E. height
     "peakDistance" : 15, # Check before measurement with testSingleShot. If photons not counted -> smaller. If single peaks counted multiple times -> larger
@@ -30,12 +30,12 @@ settings = {
     # Pulse settings
     "pulseTrigger" : 4,
     "wgenFreq" : 1E3,
-    "wgenWidth" : 800E-9,
-    "wgenVolt" : 5.5,
+    "wgenWidth" : 150E-9,
+    "wgenVolt" : 6,
     "wgenFunc" : "PULse",
 
     # Oscilloscope screen settings
-    "timeRange" : 1E-6, # Sets oscilloscope screen width. 20E-6 is good value to use in room temp.
+    "timeRange" : 0.5E-6, # Sets oscilloscope screen width. 20E-6 is good value to use in room temp.
     "photonVamplitude" : 800E-3,
     "pulseVamplitude" : 16,
 
@@ -51,7 +51,8 @@ settings = {
     "outputOff" : 0,
     
     "initMes" : 1,
-    "aquireData" : 1, # Aquires data and plots photon distribution.
+    "aquireData" : 0, # Aquires data and plots photon distribution.
+    "aquireDataHeight" : 0,
     "testSingleShot" : 0, # Use to calibrate peak height and prominance before aquiering data
  }
 
@@ -77,7 +78,7 @@ def initializeMeasurement(settings):
     # set oscilloscope display
     cont.setDisplay(osc, 1, settings["photonVamplitude"], settings["timeRange"], 0)
     cont.setDisplay(osc, 2, settings["pulseVamplitude"], settings["timeRange"], settings["pulseTrigger"])
-    osc.write(":TIMebase:POSition 350E-9")
+    osc.write(":TIMebase:POSition 150E-9")
     osc.write(":TRIG:MODE EDGE")
     print("Oscilloscope display set.")
 
@@ -124,7 +125,7 @@ def testSingleShot(settings):
         area = integ.simps(voltage, timeAxis, dx = 1, even = "avg")
         totalCharge = area / (223.87*50*1.602*10**-19)
         print(f"total charge is {totalCharge}")
-        print(f"{totalCharge/(697763.4)} photons detected")
+        print(f"{totalCharge/(3.832E6)} photons detected")
 
         os.remove("./dataCollection/" + settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv")
 
@@ -182,6 +183,31 @@ def aquireData(settings):
     plt.savefig("./dataCollection/"+str(settings["pathNameDate"])+"/Photos/"+settings["plotName"]+str(settings["biasVoltage"])+".png")
     plt.show()
 
+def aquireDataHeight(settings):
+    i = 1
+    chargeList = []
+    osc.write(":MEASure:VAMPlitude MATH")
+    osc.write(":RUN")
+    time.sleep(1)
+    while i < settings["numberOfDatasets"]:
+        osc.write(":MEAS:VAMP?")
+        data = osc.read()
+        chargeList.append(data)
+        # cont.saveData(osc, settings["fileName"]+str(settings["biasVoltage"]), settings["fileName"]+str(settings["biasVoltage"])+" "+settings["testDescribtion"], True) # Aquires data and saves to Temp folder as CSV file
+        # temp = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+str(settings["biasVoltage"]), 1)
+        # timeAxis = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"], 0)[200:]
+        # background = np.array(temp[:200])
+        # backAverag = np.mean(background)
+        # voltage = [point-backAverag for point in rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+str(settings["biasVoltage"]), 1)[200:]]
+        # height = max(voltage) - min(voltage)
+        # chargeList.append(height)
+        # os.remove("./dataCollection/" + settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"]+".csv")
+        i += 1
+    with open("./DataCollection/"+settings["pathNameDate"]+"/"+"HeightListMath"+settings["biasVoltage"]+".csv", "a") as file:
+        for data in chargeList:
+            file.write(f"{data}")
+
+    
 
 def run(settings):
     if settings["initMes"]:
@@ -190,6 +216,8 @@ def run(settings):
         testSingleShot(settings)
     if settings["aquireData"]:
         aquireData(settings)
+    if settings["aquireDataHeight"]:
+        aquireDataHeight(settings)
     
     closeAll(settings)
 

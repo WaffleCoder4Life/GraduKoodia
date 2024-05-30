@@ -4,6 +4,7 @@ import scipy.optimize
 import numpy as np
 from sympy.solvers import solve
 from sympy import Symbol
+import matplotlib
 
 # Cyro temp
 bias_voltage = [23, 23.5, 24, 24.5, 25]
@@ -74,20 +75,34 @@ chargeVariance_3_850kOhm = [15331228465.4289, 13752482072.2549, 16448414399.0657
 height_3_850kOhm = [0.04914261221158375, 0.05954371114970103, 0.0723018687711173, 0.07847305022477033, 0.09683659196475858]
 heightVariance_3_850kOhm = [1.2077759089759732e-05, 1.6204957018343658e-05, 1.560855580252237e-05, 4.1418161030653236e-06, 9.5666815621758e-06]
 
+# second cooling cyckle, warming up, 1.005 kOhm
+bias_voltage_1_005WU = [23, 23.5, 24, 24.5, 25]
+charge_1_005kOhmWU = [2739526.17, 3356723.66, 3973208.64, 4582584.92, 5181119.32]
+chargeVariance_1_005kOhmWU = [65921338429.8011, 192847237902.7644, 24576855828.9104, 98061767412.3936, 44112237038.8376]
+height_1_005kOhmWU = [0.053201686018328885, 0.06566628113206999, 0.07595562129003436, 0.0876387301178458, 0.09941436472083773]
+heightVariance_1_005kOhmWU = [8.978446672222226e-06, 1.1212855559968437e-05, 1.659992356330176e-05, 2.506782310884447e-05, 2.7725443323822222e-05]
+
+# warming up, 450 Ohm
+WarmUpBias450Ohm = [23, 24, 25]
+charge_WarmUpPT450Ohm = [2532320.89, 3824952.2, 5056242.56]
+chargeVariance_WarmUpPT450Ohm = [9840520917.9579, 18257887538.08, 38337063691.1264]
+height_WarmUpPT450Ohm = [0.05178267535714388, 0.07682973913962378, 0.10189011156787808]
+heightVariance_WarmUpPT450Ohm = [1.370396640029773e-05, 1.5589848312676763e-05, 2.2143706272186603e-05]
 
 settings = {
             # CSV file unpacking
-            "pathNameDate" : "16042024", # Change to current date
-            "measurementID" : "3_850kOhm", # Use for example the temperature.
+            "pathNameDate" : "26042024", # Change to current date
+            "measurementID" : "WarmUpPT450Ohm", # Use for example the temperature.
             "csvFileName" : "chargeAndHeightData", # Same name by default
 
             # Charge and height plottings
-            "imageTitle" : "3_850 k$\Omega$",
-            "imageFileName" : "chargeAndHeight_3850Ohm",
+            "imageTitle" : "PT 450 $\Omega$",
+            "imageFileName" : "WarmUpchargeAndHeightPT450Ohm",
 
             # Command control
             "plot" : 1,
-            "readCSV" : 1,
+            "readCSV" : 0,
+            "gainPlot" : 0,
 
 
 }
@@ -96,9 +111,17 @@ def run():
 
     if settings["readCSV"]:
         readCsv(settings)
+    
+    if settings["gainPlot"]:
+        referenceGain()
+        gainPlot(charge_roomTemp, chargeVariance_roomTemp, bias_voltage_roomTemp, "Room temperature", "crimson")
+        gainPlot(charge_1_720kOhm_2, chargeVariance_1_720kOhm_2, bias_voltage_1720_2, "1.720 kOhm", "magenta")
+        gainPlot(charge_3_850kOhm, chargeVariance_3_850kOhm, bias_voltage_3_850kOhm, "3.850 kOhm", "mediumblue")
+        plt.savefig("./DataCollection/gainDiffTemp.png")
+        plt.show()
 
     if settings["plot"]:
-        chargeAndHeightPlot(charge_3_850kOhm, height_3_850kOhm, bias_voltage_3_850kOhm, chargeVariance_3_850kOhm, heightVariance_3_850kOhm)
+        chargeAndHeightPlot(charge_WarmUpPT450Ohm, height_WarmUpPT450Ohm, WarmUpBias450Ohm, chargeVariance_WarmUpPT450Ohm, heightVariance_WarmUpPT450Ohm)
 
 # Use for easy list creation. Copy printed lists to save and use data.
 def readCsv(settings):
@@ -118,10 +141,47 @@ def readCsv(settings):
     print("height_"+settings["measurementID"]+f" = {height}")
     print("heightVariance_"+settings["measurementID"]+f" = {height_var}")
 
-
-
 def line(x, a, b):
     return a*x + b
+def referenceGain():
+    x = Symbol("x")
+    voltage = [2.5, 6] 
+    gain = [2.9E6, 6.3E6]
+    params = scipy.optimize.curve_fit(line, voltage, gain)
+    linspace = np.arange(1.5,4.1,0.1)
+    line1 = line(linspace, params[0][0], params[0][1])
+    plt.plot(linspace, line1, linestyle = "--", label = "Datasheet room temperature")
+    plt.legend()
+
+def breakDownVoltCharge(chargeList, chargeVariances, bias_voltage):
+    chargeWeight = [1/point for point in chargeVariances]
+    
+    x = Symbol("x")
+    bv = sm.add_constant(bias_voltage)
+    chargefit = sm.WLS(chargeList, bv, weights = chargeWeight)
+    chargeResult = chargefit.fit()
+    line1 = line(x, chargeResult.params[1], chargeResult.params[0])
+    breakdownResult = solve(line1, x)
+    print(breakdownResult)
+    return breakdownResult[0]
+
+
+def gainPlot(chargeList, chargeVariance, biasVoltageList, label, color):
+    electronCharge = 1.6021766E-19
+    gainList = []
+    for charge in chargeList:
+        gainList.append(charge)
+    breakDownVoltage = breakDownVoltCharge(chargeList, chargeVariance, biasVoltageList)
+    overVoltage = [voltage - breakDownVoltage for voltage in biasVoltageList]
+    plt.plot(overVoltage, gainList, marker = "s", color = color, label = label)
+    plt.xlabel("Overvoltage / V")
+    plt.ylabel("Gain")
+    #plt.yscale("log")
+    plt.legend()
+    # yticks = np.arange(2E6, 7E6, 1E6)
+    # print(yticks)
+    # plt.yticks(yticks)
+
 
 def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVariances):
 
@@ -168,7 +228,7 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     ax1.errorbar(bias_voltage, charge, yerr=chargeSigmaError, fmt = "none", ecolor = "mediumorchid", capsize = 3)
     ax1.plot(voltage_space, charge_plot_fit, color = "mediumaquamarine", label = "Weighted least squares fit")
 
-    ax1.scatter(breakdownResult, [0], marker = "s", s=10, c="black", label=f"Avalanche breakdown voltage")
+    ax1.scatter(breakdownResult, [0], marker = "s", s=10, c="black", label=f"Avalanche breakdown\nvoltage {breakdownResult[0]:.2f} V")
     ax1.errorbar(float(breakdownResult[0]), [0], xerr = [float(breakDownOmega)], fmt = "none", ecolor = "black", capsize = 3)
 
     ax1.set_ylabel("charge ($10^{6}$ e)")
@@ -178,7 +238,7 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     ax2.errorbar(bias_voltage, height, yerr=heightSigmaError, fmt = "none", ecolor = "mediumorchid", capsize = 3)
     ax2.plot(voltage_space, height_plot_fit, color = "mediumaquamarine", label = "Weighted least squares fit")
 
-    ax2.scatter(breakdownResult2, [0], marker = "s", s=10, c="black", label=f"Avalanche breakdown voltage")
+    ax2.scatter(breakdownResult2, [0], marker = "s", s=10, c="black", label=f"Avalanche breakdown\nvoltage {breakdownResult2[0]:.2f} V")
     ax2.errorbar(float(breakdownResult2[0]), [0], xerr = [float(breakDownOmega2)], fmt = "none", ecolor = "black", capsize = 3)
 
     ax2.set_ylabel("pulse height (V)")

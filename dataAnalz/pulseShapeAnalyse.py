@@ -21,19 +21,19 @@ settings = {
             "channel" : 1,
             "displayVoltRange" : 400E-3,
             "displayTimeRange" : 1E-6, # With 1E-6 saves 2000 points. If changed, need to fix later plottings
-            "triggerLevel" : 50E-3, # Use around 2/3 of single pulse height
-            "peakDistance" : 20, # Adjust if double peaks captured. Lower value -> filters double peaks better. (If very low, filters single peaks due to noise)
+            "triggerLevel" : 60E-3, # Use around 2/3 of single pulse height
+            "peakDistance" : 300, # Adjust if double peaks captured. Lower value -> filters double peaks better. (If very low, filters single peaks due to noise)
 
             # ChANGE FOR NEW MEASUREMENTS
-            "pathNameDate": "16042024",
-            "fileName": "pulseChargeAndHeight_3_870kOhm", #Adds biasVoltage to the end of the name.
+            "pathNameDate": "26042024",
+            "fileName": "pulseChargeAndHeightPT445Ohm", #Adds biasVoltage to the end of the name.
             "biasVoltage" : "25V", # SET VOLTAGE WITH ANOTHER PROGRAM
-            "temperature" : "3.870 k$\\Omega$ (180 mK)",
-            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.90 V. Dark counts and temperature 3.3870 kOhm",
+            "temperature" : "PT 445 $\\Omega$ ",
+            "testDescribtion" : "Pulse height measurements with 2 amplifiers at 14.90 V. Dark counts and temperature PT 445 Ohm",
 
-            "numberOfDataSets": 200,
-            "backroundEnd" : 950, #Display from 0 to 2000, if no delay trigger at 1000
-            "filterBeforePeak" : 20E-3, # Checks if data value before pulse is higher than this value and filters it out. Used to filter noisy pulses
+            "numberOfDataSets": 100,
+            "backroundEnd" : 980, #Display from 0 to 2000, if no delay trigger at 1000
+            "filterBeforePeak" : 30E-3, # Checks if data value before pulse is higher than this value and filters it out. Used to filter noisy pulses
             
             "averagePlotName" : "100singleCountAverage",
 
@@ -62,13 +62,13 @@ def setOscilloscopeDisplay(settings):
 
 def captureSingleScreens(settings):
     cont.setDisplay(osc, settings["channel"], settings["displayVoltRange"], settings["displayTimeRange"], settings["triggerLevel"])
-    osc.write(":RUN")
     i = 1
     osc.write("CHAN1:DISP 1")
     path = "./dataCollection/"+settings["pathNameDate"]+"/pulseCharge"+settings["biasVoltage"]
     if not os.path.exists(path):
         os.makedirs(path)
     while i <= settings["numberOfDataSets"]:
+        osc.write(":SINGLE")
         cont.saveData(osc, settings["fileName"]+settings["biasVoltage"], settings["fileName"]+settings["biasVoltage"]+" "+settings["testDescribtion"], True)
         temp = rod.readOscilloscopeData(settings["pathNameDate"]+"/Temp/"+settings["fileName"]+settings["biasVoltage"], 1)
         if cont.countPeaks(temp, settings["triggerLevel"]-0.005, settings["peakDistance"]) == 1 and cont.countPeaks(temp, settings["triggerLevel"] * 2, settings["peakDistance"]) == 0 and temp[990] < settings["filterBeforePeak"]:

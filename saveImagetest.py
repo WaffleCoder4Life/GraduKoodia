@@ -28,7 +28,7 @@ print(osc.read())
 osc.write(":HARDcopy:INKSaver OFF") #darkmode
 sDisplay = osc.query_binary_values(":DISPlay:DATA? PNG", datatype = "B", header_fmt = "ieee", container = bytes)
 # Save display data values to file.
-f = open("./dataCollection/photonCountLED5.5Bias25V.png", "wb")
+f = open("./dataCollection/SiPMafterpulse.png", "wb")
 f.write(sDisplay)
 f.close()
 print("Screen image written to asdasdasdAAAAAAAAAAAAAAAAAAAAAAAAAAAA.png.")

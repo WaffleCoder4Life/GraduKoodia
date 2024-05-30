@@ -10,64 +10,69 @@ import readOscilloscopeData as rosc
 #Write all different laserIntensities to list and same amount of colors for plotting. 'today' needs to be changed (different file locations for each day)
 
  
-laserIntensity = ["100uA", "200uA","500uA", "1mA"]
+laserIntensity = ["100uA", "1mA"]
 
 
 
 colours = ["indigo","blue","lightseagreen","green","yellowgreen","gold", "darkorange", "red"]
-colours1 = [cm.inferno(i) for i in np.linspace(0, 0.5, 6)]
-colours2 = [cm.inferno(i) for i in np.linspace(0.5, 1, 6)]
+colours1 = [cm.inferno(i) for i in np.linspace(0, 1, 6)]
+colours2 = [cm.inferno(i) for i in np.linspace(1, 2, 6)]
 
 #CHANGE PATH NAME BY CHANGING DATE
-fileDate1 = "16042024"
-bdvoltage1 = 21
-fileDate2 = "19042024"
-bdvoltage2 = 21
+fileDate1 = "04042024"
+bdvoltage1 = 24.5
+fileDate2 = "29042024"
+bdvoltage2 = 24.5
 
 # Image save settings
-fileDateImag = "19042024"
-name = "IVcompare3_8kOhm"
+fileDateImag = "29042024"
+name = "IVcompareRoomTempFirstSecondCyckle"
 
 
-def bdvoltageIndex(fileDate, bdvolt):
-    data = [round(point,1) for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate+"/{0}_sweep".format(laserIntensity[0]), 0)]
+def bdvoltageIndex(fileDate, bdvolt, index):
+    data = [round(point,1) for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate+"/{0}_sweep".format(laserIntensity[index]), 0)]
     return data.index(bdvolt)
 
-print(bdvoltageIndex(fileDate1, bdvoltage1))
+print(bdvoltageIndex(fileDate2, bdvoltage2, 0))
 
 
 #CREATES dICTIONARY WITH KEY - VOLTAGE LIST
 voltdic1 = {}
+i = 0
 for amps in laserIntensity:
-    voltdic1["LED {0}".format(amps)] = [point-bdvoltage1 for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate1+"/{0}_sweep".format(amps), 0)[bdvoltageIndex(fileDate1, bdvoltage1):bdvoltageIndex(fileDate1, bdvoltage1+2.4)]] #SAVE VOLTAGE LIST IN DICTIONARY
-
+    voltdic1["LED {0}".format(amps)] = [point-bdvoltage1 for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate1+"/{0}_sweep".format(amps), 0)[bdvoltageIndex(fileDate1, bdvoltage1, i):bdvoltageIndex(fileDate1, bdvoltage1+2.4, i)]] #SAVE VOLTAGE LIST IN DICTIONARY
+    i += 1
+i = 0
 voltdic2 = {}
 for amps in laserIntensity:
-    voltdic2["LED {0}".format(amps)] = [point - bdvoltage2 for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate2+"/{0}_sweep".format(amps), 0)[bdvoltageIndex(fileDate2, bdvoltage2):bdvoltageIndex(fileDate2, bdvoltage2+2.4)]] #SAVE VOLTAGE LIST IN DICTIONARY
-
+    voltdic2["LED {0}".format(amps)] = [point - bdvoltage2 for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate2+"/{0}_sweep".format(amps), 0)[bdvoltageIndex(fileDate2, bdvoltage2, i):bdvoltageIndex(fileDate2, bdvoltage2+2.4, i)]] #SAVE VOLTAGE LIST IN DICTIONARY
+    i += 1
 
 #CREATES DICTIONARY WITH KEY - CURRENT LIST.
 curdic1 = {}
+i = 0
 for amps in laserIntensity:
-    curdic1["LED {0}".format(amps)] = [1E6 * point for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate1+"/{0}_sweep".format(amps), 1)[bdvoltageIndex(fileDate1, bdvoltage1):bdvoltageIndex(fileDate1, bdvoltage1+2.4)]] #SAVE CURRENT LIST IN DICTIONARY
+    curdic1["LED {0}".format(amps)] = [1E6 * point for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate1+"/{0}_sweep".format(amps), 1)[bdvoltageIndex(fileDate1, bdvoltage1, i):bdvoltageIndex(fileDate1, bdvoltage1+2.4, i)]] #SAVE CURRENT LIST IN DICTIONARY
+    i += 1
 curdic2 = {}
+i = 0
 for amps in laserIntensity:
-    curdic2["LED {0}".format(amps)] = [1E6 * point for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate2+"/{0}_sweep".format(amps), 1)[bdvoltageIndex(fileDate2, bdvoltage2):bdvoltageIndex(fileDate2, bdvoltage2+2.4)]]
-
+    curdic2["LED {0}".format(amps)] = [1E6 * point for point in rsf.readSourceMeterDataFine("dataCollection/"+fileDate2+"/{0}_sweep".format(amps), 1)[bdvoltageIndex(fileDate2, bdvoltage2, i):bdvoltageIndex(fileDate2, bdvoltage2+2.4, i)]]
+    i += 1
 
 
 fig, ax1 = plt.subplots()
 # Plots all IV-curves to same image
 i = 0
 for key1, key2 in zip(curdic1, voltdic1):
-    ax1.scatter(voltdic1[key2], curdic1[key1], s=2, marker="d", color=colours1[i], cmap="inferno", label = "3.81 kOhm first"+str(key1))
+    ax1.scatter(voltdic1[key2], curdic1[key1], s=8, facecolors='none', edgecolors=colours[i], cmap="inferno", label = "After 1. cycle "+str(key1))
     i+=1
 ax1.set_xlabel("Overvoltage / V")
 ax2 = ax1.twinx()
 
-i = 0
+i += 1
 for key3, key4 in zip(curdic2, voltdic2):
-    ax2.scatter(voltdic2[key4], curdic2[key3], s=2, marker="d", color=colours2[i], cmap="Greens", label = "3.810 kOhm second"+str(key3))
+    ax2.scatter(voltdic2[key4], curdic2[key3], s=4, marker="d", color=colours[i], cmap="Greens", label = "After 2. cycle "+str(key3))
     i+=1
 
 """ for name, color in zip(laserIntensity, colours):

@@ -117,20 +117,6 @@ if settings["runTest"]:
     print(f"Dark count rate is {darkCountRate}")
 
 
-
-    # 120 s to measure 5000 screens -> SLOWER THAN ORIGINAL
-
-  
-    
-
-
-
-
-
-
-
-
-
 if settings["closeResources"]:
     osc.close()
     #sour.close()
