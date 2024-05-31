@@ -20,6 +20,7 @@ def iScreen(Keithley6487):
         global GUIval
         device.write(":FORM:ELEM READ") #IF 'ALL' -> CURRENT/RESISTANCE, TIME FROM SWITCH ON, STATUS (idk), SOURCE VOLTAGE. 'READ,VSO' -> CURRENT, SOURCE VOLTAGE
         device.write(":FORM:DATA ASCii") #CHOOSE DATA FORMAT
+        device.write(":TRIG:COUNT 1")
         device.write(":INIT") #TRIGGER MEASUREMENT
         device.write(":SENS:DATA?") #ASK FOR DATA
         GUIval = device.read()
@@ -29,19 +30,19 @@ def iScreen(Keithley6487):
     def update_text():
         global GUItimer
         global submit_pressed
+        global polling_rate
+        if submit_pressed:
+            GUItimer = 1
+            submit_pressed = 0
         if device is None:
             number = func()
         else:
             number = fetch_i()
         text_box.delete('1.0', tk.END)
-        text_box.insert(tk.END, f"{float(number):.3g}", 'center')
-        global GUItimer
-        global polling_rate
-        if GUItimer is not None:
-            GUItimer.cancel()
-        if submit_pressed:
-            GUItimer = threading.Timer(float(polling_rate), update_text)
-            GUItimer.start()
+        text_box.insert(tk.END, str(number), 'center')
+        if GUItimer:
+            root.after(max(1,int(polling_rate*1000)), update_text)
+
 
     def submit():
         global submit_pressed
@@ -56,9 +57,8 @@ def iScreen(Keithley6487):
         text_box.configure(font=("TkDefaultFont", new_font_size))
 
     def stop_timer():
-        global timer
-        if GUItimer is not None:
-            GUItimer.cancel()
+        global GUItimer
+        GUItimer = 0
 
     def on_exit():
         stop_timer()

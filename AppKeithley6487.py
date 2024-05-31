@@ -73,7 +73,6 @@ def UI():
             setVoltageFine(instr, volt, currentLimit, voltageRange)
             instr.write(":TRIG:COUNT INF") #Continuous measurement
             instr.write(":INIT")
-
         
         if num == settings["UIsetVRan"][0]:
             instr.write(":ABOR")
@@ -100,7 +99,7 @@ def UI():
             time.sleep(2)
         
         if num == settings["UIsetIRan"][0]:
-            instr.write("ABOR")
+            instr.write(":ABOR")
             try:
                 iRan = float(input("\nPossible values from -0.021 to 0.021\nGive current measurement range: "))
             except:
@@ -113,6 +112,8 @@ def UI():
         
         if num == settings["UIphotGUI"][0]:
             try:
+                instr.write(":ABOR")
+                print("Aborted")
                 pg.iScreen(instr)
             except:
                 print("\nSomething went wrong, continuing anyway")
