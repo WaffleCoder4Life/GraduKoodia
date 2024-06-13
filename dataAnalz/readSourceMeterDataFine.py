@@ -10,7 +10,7 @@ def readSourceMeterDataFine(fileName: str, dataType: int)->list:
     is returned [CURRENT/RESISTANCE, TIME FROM SWITCH ON, STATUS (idk), SOURCE VOLTAGE]"""
 
 
-    with open(fileName+".csv") as file:
+    with open(fileName) as file:
         rows = []
         #File rows into a list, then delete first two rows not containing data
         for row in file:

@@ -5,6 +5,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import simpledialog
 import os
+from tkinter import ttk
 
 
 
@@ -45,6 +46,8 @@ def ChooseFiles(initdir = ".."):
     root.destroy()
     # Return filenames as simple list
     return files
+
+
 
 def ChooseFileMultiple(initdir = ".."):
     files = tk.filedialog.askopenfilenames(initialdir = initdir,title='Choose files')
