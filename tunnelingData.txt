@@ -1,0 +1,1 @@
+53 K -> no tunneling breakdown (tested up to 28.3 V)

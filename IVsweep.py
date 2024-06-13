@@ -11,18 +11,9 @@ from sympy.solvers import solve
 from sympy import Symbol
 import scipy.optimize
 
-""" instrumentlist = {
-    "picoammeter": {
-        "IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 6487",
-        "address": "",
-        "commands": {
-            "get_voltage": "SOUR1:VOLT?"
-        }
-    }
-} """
 
 # connect
-if False:
+if True:
     print("Test connection")
     rm = visa.ResourceManager()
     list = rm.list_resources()
@@ -45,24 +36,26 @@ if False:
 
 
 
-reset = 0 # Reset source meter before starting measurements
+reset = 1 # Reset source meter before starting measurements
 singleTest = 0
 sweepTest = 0
-sweepAverageTest = 0 # Change sweep parameters from belowe
-plotSweep = 0 # Plot IV curves from sweep
-plotSweepSqrt = 1 # Plot sqrt(I)V curves from sweep
+sweepAverageTest = 1 # Change sweep parameters from belowe
+plotSweep = 1 # Plot IV curves from sweep
+plotSweepDCRcompensated = 0
+plotSweepSqrt = 0 # Plot sqrt(I)V curves from sweep
 closeAfter = 0 # Close source meter and connection
 
 
-filename = "100uA_sweepPt380Ohm"
+filename = "UV400uA1_05Kmixchamb"
 #filename2 = "secoundBreakdown_openShutter_1169Ohm"
-dateFolder = "26042024" #CHANGE 
-ledInt = "100 uA"
-temperature = "Pt 1100 Ohm"
-startVoltage = 23.5
-endVoltage = 27
+darkCurrentFileName = "darkcurrentOpen_413OhmPtPlate"
+dateFolder = "13062024" #CHANGE 
+ledInt = "UV 400 uA"
+temperature = "1.05 K mixing chamber"
+startVoltage = 20
+endVoltage = 24.5
 voltageStep = 0.1
-pointsPerVoltage = 5
+pointsPerVoltage = 10
 
 
 if reset:
@@ -101,7 +94,7 @@ if sweepTest:
 
 if sweepAverageTest:
     print("Executing average sweep test...")
-    vsa.voltageSweepAverage(sour, 50, startVoltage, endVoltage, 2.5E-3, filename, pointsPerVoltage, voltageStep, f"Keithley 6487, temperature {temperature} kOhm, IV-curve with average sweep from {startVoltage} V to {endVoltage} V, {pointsPerVoltage} points per voltage, LED {ledInt}, voltage step {voltageStep} V")
+    vsa.voltageSweepAverage(sour, 50, startVoltage, endVoltage, 2.5E-3, 1E-6, filename, pointsPerVoltage, voltageStep, f"Keithley 6487, temperature {temperature} kOhm, IV-curve with average sweep from {startVoltage} V to {endVoltage} V, {pointsPerVoltage} points per voltage, LED {ledInt}, voltage step {voltageStep} V")
 
 
 if closeAfter:
@@ -123,6 +116,22 @@ if plotSweep:
     plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename)
     plt.show()
 
+if plotSweepDCRcompensated:
+    """Plot DCR compensated IV-curve"""
+    voltageup = rd.readSourceMeterDataFine("./dataCollection/"+ dateFolder +"/" + filename, 0) #VOLTAGE VAlUES ARE NOW JUST VALUES SEND TO THE SOURCE
+    currentup = [10**(6)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + filename, 1)]
+    darkCurrent = [10**(6)*point for point in rd.readSourceMeterDataFine("./dataCollection/" + dateFolder +"/" + darkCurrentFileName, 1)]
+    compCurrent = []
+    for i in range(len(currentup)):
+        compCurrent.append(currentup[i]-darkCurrent[i])
+    plt.scatter(voltageup, compCurrent, s=2, c="red", marker="d", label = f"LED {ledInt}")
+    plt.xlabel("$U$ / V")
+    plt.ylabel("$I$ / uA")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename + "DCRcompensated")
+    plt.show()
+
 def line(x, a, b):
     return a*x + b
 
@@ -138,13 +147,13 @@ if plotSweepSqrt:
     currentSqrt = [np.sqrt(10**(6)*point) for point in fixedDataset]
     plt.scatter(voltage, currentSqrt, s=2, c="red", marker="d", label = str(ledInt)+" LED")
     print(len(voltage))
-    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[50:75], ydata = currentSqrt[50:75]) # Gives parameters for a line fit, check ctarting point from image
+    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[14:], ydata = currentSqrt[14:]) # Gives parameters for a line fit, check ctarting point from image
     print(voltResult) 
     x = Symbol("x")
     lineFit = line(x, voltResult[0][0], voltResult[0][1]) # arguments x, a (slope) and b (intercept)
     breakdownResult = solve(lineFit, x) # solves x from lineFit y = 0
     
-    linSpace = np.linspace(20, 24, 1000) # Change linspace to match used voltage range in sweep
+    linSpace = np.linspace(21, 23, 1000) # Change linspace to match used voltage range in sweep
     linePlot = line(linSpace, voltResult[0][0], voltResult[0][1])
     plt.plot(linSpace, linePlot, color = "black", label = f"Linear fit, V_bd {breakdownResult[0]:.3f}")
 

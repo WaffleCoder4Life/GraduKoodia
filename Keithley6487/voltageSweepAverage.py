@@ -2,7 +2,7 @@ import time
 import os
 from datetime import date
 
-def voltageSweepAverage(instrument, voltageRange: float, startVoltage_V: float, endVoltage_V: float, currentLimit_A: float, fileName: str, measurementsPerVoltage: int, voltageStep: float, testDescribtion: str, reverse: bool = False):
+def voltageSweepAverage(instrument, voltageRange: float, startVoltage_V: float, endVoltage_V: float, currentLimit_A: float, currentRange_A: float, fileName: str, measurementsPerVoltage: int, voltageStep: float, testDescribtion: str, reverse: bool = False):
     """Performs voltage step sweep with given settings, and saves the setting and measured voltage, current and resistance to 'fileName'.csv to DataCollection folder\n
     Data is appended to file and test describtion is written to the beginning of dataset. Voltage range allowed 10 V, 50 V, 100 V. Use 50 V for 1 mV sweep steps."""
     i = 1
@@ -33,7 +33,7 @@ def voltageSweepAverage(instrument, voltageRange: float, startVoltage_V: float, 
         
         voltage_step = voltageStep #SMALLEST ALLOWED VALUE 0.001 FOR 50 V RANGE
 
-        instrument.write(":SENS:RANG 0.00001")
+        instrument.write(":SENS:RANG "+str(currentRange_A))
         
         
 
@@ -79,7 +79,7 @@ def voltageSweepAverage(instrument, voltageRange: float, startVoltage_V: float, 
                 instrument.write(":FORM:DATA ASCii") #CHOOSE DATA FORMAT
                 while voltage <= endVoltage_V:
                     instrument.write(":SOUR:VOLT " + str(voltage))  # Set voltage
-                    time.sleep(0.5) #Wait after setting voltage
+                    time.sleep(1) #Wait after setting voltage
                     i = 0
                     tempCurr = []
                     while i < measurementsPerVoltage:

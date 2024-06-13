@@ -130,6 +130,7 @@ def UI():
             instr.write(":INIT")
         
         if num == settings["UIcloseProgram"][0]:
+            instr.close()
             print("\nHave a nice day!")
             time.sleep(3)
             break

@@ -29,7 +29,7 @@ meanCount = [3.276, 3.903, 4.612, 5.437, 6.037, 6.928]
 
 
 def modifiedPoissonian(n, l, q):
-    return ((1-q)*q**n)/((np.exp(l))-1)#*(laguerre(n)(-l*((1-q)/q))-1)
+    return ((1-q)*q**n)/((np.exp(l))-1)*(laguerre(n)(-l*((1-q)/q))-1)
 
 xdata = np.linspace(1,5,5)
 ydata = [modifiedPoissonian(point, 1.4, 0.21) for point in xdata]

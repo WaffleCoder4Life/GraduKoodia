@@ -40,6 +40,8 @@ listOfLists = [DCR4_0kOhm23, DCR4_0kOhm23_5, DCR4_0kOhm24, DCR4_0kOhm24_5, DCR4_
 # 24.5 mean 1.5969585486824502 with variance 0.055255597025417484
 # 25 mean 3.765259698538722 with variance 0.5215344099905066
 
+
+
 if settings["plotDCR"]:
     dcrList = []
     sigmaList = []

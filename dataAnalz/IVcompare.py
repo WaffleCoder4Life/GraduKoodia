@@ -10,7 +10,7 @@ import readOscilloscopeData as rosc
 #Write all different laserIntensities to list and same amount of colors for plotting. 'today' needs to be changed (different file locations for each day)
 
  
-laserIntensity = ["100uA", "1mA"]
+laserIntensity = ["100uA", "200uA"]
 
 
 
@@ -21,12 +21,12 @@ colours2 = [cm.inferno(i) for i in np.linspace(1, 2, 6)]
 #CHANGE PATH NAME BY CHANGING DATE
 fileDate1 = "04042024"
 bdvoltage1 = 24.5
-fileDate2 = "29042024"
+fileDate2 = "05062024"
 bdvoltage2 = 24.5
 
 # Image save settings
-fileDateImag = "29042024"
-name = "IVcompareRoomTempFirstSecondCyckle"
+fileDateImag = "06062024"
+name = "IVcompareRoomTempDiffSetups"
 
 
 def bdvoltageIndex(fileDate, bdvolt, index):
@@ -65,14 +65,14 @@ fig, ax1 = plt.subplots()
 # Plots all IV-curves to same image
 i = 0
 for key1, key2 in zip(curdic1, voltdic1):
-    ax1.scatter(voltdic1[key2], curdic1[key1], s=8, facecolors='none', edgecolors=colours[i], cmap="inferno", label = "After 1. cycle "+str(key1))
+    ax1.scatter(voltdic1[key2], curdic1[key1], s=8, facecolors='none', edgecolors=colours[i], cmap="inferno", label = "Original setup "+str(key1))
     i+=1
 ax1.set_xlabel("Overvoltage / V")
 ax2 = ax1.twinx()
 
 i += 1
 for key3, key4 in zip(curdic2, voltdic2):
-    ax2.scatter(voltdic2[key4], curdic2[key3], s=4, marker="d", color=colours[i], cmap="Greens", label = "After 2. cycle "+str(key3))
+    ax2.scatter(voltdic2[key4], curdic2[key3], s=4, marker="d", color=colours[i], cmap="Greens", label = "New setup "+str(key3))
     i+=1
 
 """ for name, color in zip(laserIntensity, colours):

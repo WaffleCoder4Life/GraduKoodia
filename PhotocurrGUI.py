@@ -1,5 +1,4 @@
 import tkinter as tk
-import threading
 import time
 
 GUIval = 0
@@ -23,7 +22,7 @@ def iScreen(Keithley6487):
         device.write(":TRIG:COUNT 1")
         device.write(":INIT") #TRIGGER MEASUREMENT
         device.write(":SENS:DATA?") #ASK FOR DATA
-        GUIval = device.read()
+        GUIval = float(device.read())
         return GUIval
 
 
@@ -39,7 +38,7 @@ def iScreen(Keithley6487):
         else:
             number = fetch_i()
         text_box.delete('1.0', tk.END)
-        text_box.insert(tk.END, str(number), 'center')
+        text_box.insert(tk.END, f"{number:.3e}", 'center')
         if GUItimer:
             root.after(max(1,int(polling_rate*1000)), update_text)
 
