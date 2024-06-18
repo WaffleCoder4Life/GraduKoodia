@@ -1,11 +1,13 @@
 import pyvisa as visa
-from tkinter import *
+from tkinter import Tk
 from tkinter.ttk import *
 from tkinter import simpledialog
 from PIL import Image, ImageTk
 
 class GUI:
     def __init__(self, master) -> None:
+        self.style = Style()
+        self.style.configure(style='my.TButton', font=('Helvetica', 15))
         self.master = master
         self.instr = None
         self.isOn = None
@@ -17,12 +19,16 @@ class GUI:
         self.canvas.grid()
 
         
-        self.conBut = Button(self.canvas, text="Connect", command=self.connect).grid(column=0, row=0)
+        self.conBut = Button(self.canvas, text="Connect", command=self.connect, style='my.TButton')
+        self.conBut.grid(column=0, row=0)
 
-        self.destruction = Button(self.canvas, text="Quit", command=self.master.destroy).grid(column=0, row=1)
+        self.destruction = Button(self.canvas, text="Quit", command=self.master.destroy, style='my.TButton')
+        self.destruction.grid(column=0, row=1)
         
     
     def secondPage(self):
+        style = Style()
+        style.configure(style='my.TButton', font=('Helvetica', 15))
         onImage = Image.open("./AppsNshit/on.png")
         onIm = onImage.resize((50, 50))
         self.on = ImageTk.PhotoImage(onIm)
@@ -36,11 +42,14 @@ class GUI:
         self.canvas = Frame(self.master, padding='1i')
         self.canvas.grid()
 
-        self.vLimBut = Button(self.canvas, text="Set voltage limit", command=self.setVoltageLimit).grid(column=0, row=1)
+        self.vLimBut = Button(self.canvas, text="Set voltage limit", command=self.setVoltageLimit, style='my.TButton')
+        self.vLimBut.grid(column=0, row=1)
 
-        self.currBut = Button(self.canvas, text="Set current", command=self.setCurrent).grid(column=0, row=2)
+        self.currBut = Button(self.canvas, text="Set current", command=self.setCurrent, style='my.TButton')
+        self.currBut.grid(column=0, row=2)
 
-        self.rangBut = Button(self.canvas, text="Set measurement range", command=self.setMeasRange).grid(column=0, row=3)
+        #Label(self.canvas, text="Don't use this :)").grid(column=1, row=3)
+        #self.rangBut = Button(self.canvas, text="Set measurement range", command=self.setMeasRange).grid(column=0, row=3)
 
         #self.light = Label(self.canvas, image=self.off)
         #if self.isOn is None:
@@ -49,9 +58,11 @@ class GUI:
         #    self.isOn = False
         #self.light.grid(column=0, row=5)
         
-        self.onOffBut = Button(self.canvas, text="Output On/Off", command=self.onOff).grid(column=0, row=4)
+        self.onOffBut = Button(self.canvas, text="Output On/Off", command=self.onOff, style='my.TButton')
+        self.onOffBut.grid(column=0, row=4)
 
-        self.destruction = Button(self.canvas, text="Quit", command=quit).grid(column=0, row=6)
+        self.destruction = Button(self.canvas, text="Quit", command=quit, style='my.TButton')
+        self.destruction.grid(column=0, row=6)
 
         
         
@@ -79,6 +90,7 @@ class GUI:
     def setCurrent(self):
         """Sets current"""
         curr = simpledialog.askfloat(title="Current", prompt="Enter current")
+        self.instr.write("R0X")
         self.instr.write(f"I{curr}X")
     
     def setMeasRange(self):
@@ -114,6 +126,7 @@ class GUI:
         rList = rm.list_resources()
         #try:
         self.instr = rm.open_resource('GPIB0::12::INSTR')
+        self.instr.write("F0X")
         self.secondPage()
         #except Exception as E:
         #    ip = simpledialog.askstring(title="Wrong resource", prompt=str(rList) + "\nWrong resource, type new resource")
@@ -121,7 +134,7 @@ class GUI:
 
 def main():
     root = Tk()
-    gui = GUI(root)
+    GUI(root)
     root.mainloop()
 
 if __name__ == "__main__":

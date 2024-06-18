@@ -1,6 +1,5 @@
 from tkinter import Tk
 from tkinter.ttk import *
-import pyvisa as visa
 from KeithleyCurrSour import GUI as GUI220
 
 

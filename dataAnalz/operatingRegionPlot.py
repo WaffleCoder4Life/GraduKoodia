@@ -16,13 +16,31 @@ tempBreakTunnel = {
     28.7 : [20.7, 26.20],
     25.5 : [20.7, 24.49],
     22.7 : [20.8, 24.24],
+    16.5 : [20.9, 25.84], #UNSTABLE
+    15.0 : [21, 26.2], # UNSTABLE
+    13.0 : [21, 26.5], # UNSTABLE
+    7.3 : [21, 26.64],
     5.4 : [21, 26.67],
+    3.2 : [21, 26.67],
     1.05 : [21, 26.72]
 }
 
 
-
-
+def plotOperatingRegion(dictionary: dict):
+    """Takes a temp : [(breakdownV), (tunnelingV)] dictionary and plots an operating region for SiPM."""
+    temps = []
+    breakdownV = []
+    tunnelingV = []
+    for key in dictionary:
+        temps.append(key)
+        breakdownV.append(dictionary[key][0])
+        tunnelingV.append(dictionary[key][1])
+    plt.scatter(temps, breakdownV, marker = "x", label = "Breakdown voltage")
+    plt.scatter(temps, tunnelingV, marker = "x", label = "Tunneling breakdown")
+    plt.legend()
+    plt.xlabel("Temperature / K")
+    plt.ylabel("Bias voltage / V")
+    plt.show()
 
 
 def tunnelingBreakdown():
@@ -77,7 +95,7 @@ def pick_point_from_scatter(x, y, title):
 
 
 def main():
-    tunnelingBreakdown()
+    plotOperatingRegion(tempBreakTunnel)
 
 if __name__ == "__main__":
     main()

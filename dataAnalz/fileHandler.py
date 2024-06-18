@@ -6,6 +6,7 @@ from tkinter import messagebox
 from tkinter import simpledialog
 import os
 from tkinter import ttk
+from typing import Tuple
 
 
 
@@ -43,22 +44,26 @@ def ChooseFiles(initdir = ".."):
     
     # Prompt to choose the files to process.
     files = filedialog.askopenfilenames(initialdir = initdir, parent = root)
-    root.destroy()
     # Return filenames as simple list
     return files
 
 
 
-def ChooseFileMultiple(initdir = ".."):
-    files = tk.filedialog.askopenfilenames(initialdir = initdir,title='Choose files')
-    msgbox = tk.messagebox.askquestion ('Add files','add extra files',icon = 'warning')
+def ChooseFileMultiple(initdir = "..", text = 'Choose files', filetypes = [('csv files', '*.csv')]) -> Tuple[list, str]:
+    """Choose a file and ask wether to add more files. Returns tuple[list, string] where string = 'yes' or 'no'."""
+    root = tk.Tk()
+    root.wm_attributes('-topmost', 1)
+    root.tk.eval(f'tk::PlaceWindow {root._w} center')
+    root.withdraw()
+    files = filedialog.askopenfilenames(initialdir = initdir,title=text, filetypes = filetypes)
+    msgbox = messagebox.askquestion ('Add files','add extra files',icon = 'warning')
     return list(files), msgbox
 
-def ChooseFilesDifferentFolders(initdir = ".."):
-    files, msbox = ChooseFileMultiple(initdir=initdir)
+def ChooseFilesDifferentFolders(initdir = "..", text = "Choose files", filetypes = [('csv files', '*.csv')]):
+    files, msbox = ChooseFileMultiple(initdir=initdir, text = text, filetypes = filetypes)
     allFiles = files
     while msbox == "yes":
-        files2, msbox = ChooseFileMultiple(initdir = initdir)
+        files2, msbox = ChooseFileMultiple(initdir = initdir, text = text, filetypes = filetypes)
         for file in files2:
             allFiles.append(file)
     return allFiles

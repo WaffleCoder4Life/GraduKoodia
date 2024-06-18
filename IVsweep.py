@@ -36,25 +36,25 @@ if True:
 
 
 
-reset = 0 # Reset source meter before starting measurements
+reset = 1 # Reset source meter before starting measurements
 singleTest = 0
 sweepTest = 0
-sweepAverageTest = 0 # Change sweep parameters from belowe
+sweepAverageTest = 1 # Change sweep parameters from belowe
 plotSweep = 1 # Plot IV curves from sweep
 plotSweepDCRcompensated = 0
-plotSweepSqrt = 1 # Plot sqrt(I)V curves from sweep
+plotSweepSqrt = 0 # Plot sqrt(I)V curves from sweep
 closeAfter = 0 # Close source meter and connection
 
 
-filename = "UV25uA_142OhmPtPlate"
+filename = "LED400uA_1_3Kmixchamb"
 #filename2 = "secoundBreakdown_openShutter_1169Ohm"
 darkCurrentFileName = "darkcurrentOpen_413OhmPtPlate"
-dateFolder = "11062024" #CHANGE 
-ledInt = "Dark current (closed)"
-temperature = "1.05 K mixing chamber"
-startVoltage = 25.5
-endVoltage = 26.8
-voltageStep = 0.02
+dateFolder = "18062024" #CHANGE 
+ledInt = "LED 400 uA"
+temperature = "1.3 K mixing chamber"
+startVoltage = 20
+endVoltage = 24.5
+voltageStep = 0.1
 pointsPerVoltage = 10
 
 
@@ -147,7 +147,7 @@ if plotSweepSqrt:
     currentSqrt = [np.sqrt(10**(6)*point) for point in fixedDataset]
     plt.scatter(voltage, currentSqrt, s=2, c="red", marker="d", label = str(ledInt)+" LED")
     print(len(voltage))
-    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[9:15], ydata = currentSqrt[9:15]) # Gives parameters for a line fit, check ctarting point from image
+    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[12:16], ydata = currentSqrt[12:16]) # Gives parameters for a line fit, check ctarting point from image
     print(voltResult) 
     x = Symbol("x")
     lineFit = line(x, voltResult[0][0], voltResult[0][1]) # arguments x, a (slope) and b (intercept)

@@ -79,18 +79,17 @@ if True:
 
 reset = 0
 #measureAverage: [execute, measurement range, SiPM voltage, current limit, average]
-measureAverage = [1, 0.021, 22.3, 25e-3, 20]
+measureAverage = [1, 0.021, 22.5, 25e-3, 20]
 plotII = 1
 
 #0 hole, 1 plexiglas no tpb, 2 plexiglas with tpb, 3 BLUE0, 4 BLUE1, 5 BLUE2
-tempInOhm = 201
-shutter = 0
+tempInOhm = '1'
+shutter = 3
 
-today = "10062024" #it's today
-imageTitle = "201 $\\Omega$ UV no sample"
+today = "13062024" #it's today
+imageTitle = "1 K blue no sample"
 
 path = generatePathTPB(date=today, shutter=shutter, temp=tempInOhm)
-pathforshitprogram = path[:-4]
 
 if reset:
     #RUN THESE AFTER START OR GET FUCKED
@@ -129,12 +128,12 @@ if measureAverage[0]:
 
 
 if plotII:
-    ledI = [1e3 * point for point in rd.readSourceMeterDataFine(pathforshitprogram, 0)]
-    simping = [1e6 * point for point in rd.readSourceMeterDataFine(pathforshitprogram, 1)]
+    ledI = [1e3 * point for point in rd.readSourceMeterDataFine(path, 0)]
+    simping = [1e6 * point for point in rd.readSourceMeterDataFine(path, 1)]
     plt.scatter(ledI, simping, c="mediumorchid")
     plt.xlabel("$I_{\\mathrm{led}}$ / mA")
     plt.ylabel("$I_{\\mathrm{SiPM}}$ / $\\mu$A")
     plt.title(imageTitle)
     plt.tight_layout()
-    plt.savefig(pathforshitprogram + ".png")
+    plt.savefig(path + ".png")
     plt.show()
