@@ -10,19 +10,24 @@ from sympy.solvers import solve
 
 # Dictionary with temperature : [breakdownV, tunnelingV] -pairs.
 tempBreakTunnel = {
+    39.8 : [20.66, 32.49],
+    38.1 : [20.6, 31.47],
     34.5 : [20.6, 31],
     33.6 : [20.7, 30.38],
     32.2 : [20.7, 29.07],
     28.7 : [20.7, 26.20],
     25.5 : [20.7, 24.49],
     22.7 : [20.8, 24.24],
-    16.5 : [20.9, 25.84], #UNSTABLE
-    15.0 : [21, 26.2], # UNSTABLE
-    13.0 : [21, 26.5], # UNSTABLE
-    7.3 : [21, 26.64],
-    5.4 : [21, 26.67],
-    3.2 : [21, 26.67],
-    1.05 : [21, 26.72]
+    20.2 : [20.8, 24.75],
+    17.5 : [20.8, 25.4],
+    15.2 : [20.85, 25.76],
+    10.6 : [20.9, 25.84], #UNSTABLE, og temp 16.5 K
+    9.93 : [21, 26.2], # UNSTABLE, og temp 15.0 K
+    9.02 : [21, 26.5], # UNSTABLE, og temp 13.0
+    5.8 : [21, 26.64], # og temp 7.3 K
+    4.52 : [21, 26.67], # og temp 5.4 K
+    2.77 : [21, 26.67], # og temp 3.2 K
+    1.05 : [21, 26.72] # og temp 1.05 K
 }
 
 
@@ -40,6 +45,8 @@ def plotOperatingRegion(dictionary: dict):
     plt.legend()
     plt.xlabel("Temperature / K")
     plt.ylabel("Bias voltage / V")
+    plt.fill_between(temps, tunnelingV, 33, alpha = 0.5, color = "orange", hatch = '/')
+    plt.fill_between(temps, breakdownV, 20, alpha = 0.5, color = "blue", hatch = '/')
     plt.show()
 
 
@@ -96,6 +103,7 @@ def pick_point_from_scatter(x, y, title):
 
 def main():
     plotOperatingRegion(tempBreakTunnel)
+    #tunnelingBreakdown()
 
 if __name__ == "__main__":
     main()

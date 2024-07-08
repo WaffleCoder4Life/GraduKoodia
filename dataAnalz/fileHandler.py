@@ -7,7 +7,9 @@ from tkinter import simpledialog
 import os
 from tkinter import ttk
 from typing import Tuple
-
+from tkinter import *
+from datetime import date
+import matplotlib.pyplot as plt
 
 
 def ChooseFolder(initdir = "..", title = ""):
@@ -68,6 +70,58 @@ def ChooseFilesDifferentFolders(initdir = "..", text = "Choose files", filetypes
             allFiles.append(file)
     return allFiles
 
+class ButtonWindow:
+    def __init__(self, title, text1, text2):
+        self.root = tk.Tk()
+        self.root.title(title)
+        self.root.wm_attributes('-topmost', 1)
+        self.root.eval('tk::PlaceWindow . center')
+        self.button_pressed = None
+        
+        label = Label(self.root, text = title)
+        button1 = tk.Button(self.root, text=text1, command=lambda: self.on_button_press(1))
+        button2 = tk.Button(self.root, text=text2, command=lambda: self.on_button_press(2))
+        
+        label.pack(pady=10)
+        button1.pack(pady=10)
+        button2.pack(pady=10)
+
+    def on_button_press(self, button_id):
+        self.button_pressed = button_id
+        self.root.quit()
+
+    def run(self):
+        self.root.mainloop()
+        self.root.destroy()
+        return self.button_pressed
+
+
+def returnToday():
+    today = date.today()
+    day = "{:02d}".format(today.day)
+    month = "{:02d}".format(today.month)
+    return day + month + str(today.year)
+
+
+def messageWindowSelectOptions(title, message, button1, button2):
+    # Initialise tkinter window
+    root = tk.Tk()
+    root.wm_attributes('-topmost', 1)
+    root.eval('tk::PlaceWindow . center')
+    root.withdraw()
+    def closeReturnValue1():
+        root.destroy()
+        return 1
+    def closeReturnValue2():
+        root.destroy()
+        return 2
+    win = Toplevel(root)
+    win.title(title)
+    Label(win, text=message).pack()
+    Button(win, text=button1, command=closeReturnValue1()).pack()
+    Button(win, text=button2, command=closeReturnValue2()).pack()
+    root.mainloop()
+
 
 def ChooseSingleFile(initdir = ".."):
     # Initialise tkinter window
@@ -122,4 +176,31 @@ def WriteDat(filepath = None, string_to_write = "", writemode = "w"):
         dat_file.write(string_to_write)
     
     return filepath
+
+# Chat GPT generated stuff to pick a point
+class PointPicker:
+    def __init__(self, x, y, selection):
+        self.x = x
+        self.y = y
+        self.selected_index = None
+        self.fig, self.ax = plt.subplots()
+        self.scatter = self.ax.scatter(x, y)
+        self.ax.set_title(selection)
+        self.fig.canvas.mpl_connect('button_press_event', self.on_click)
+        plt.show()
+
+    def on_click(self, event):
+        if event.inaxes != self.ax:
+            return
+        
+        # Calculate the distances between the click and all points
+        distances = np.hypot(self.x - event.xdata, self.y - event.ydata)
+        self.selected_index = np.argmin(distances)
+        
+        print(f'Selected point index: {self.selected_index}')
+        plt.close(self.fig)  # Close the plot window
+
+def pick_point_from_scatter(x, y, title):
+    picker = PointPicker(x, y, title)
+    return picker.selected_index
 

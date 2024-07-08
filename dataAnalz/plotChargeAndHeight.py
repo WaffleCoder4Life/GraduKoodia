@@ -115,13 +115,19 @@ def run():
     if settings["gainPlot"]:
         referenceGain()
         gainPlot(charge_roomTemp, chargeVariance_roomTemp, bias_voltage_roomTemp, "Room temperature", "crimson")
-        gainPlot(charge_1_720kOhm_2, chargeVariance_1_720kOhm_2, bias_voltage_1720_2, "1.720 kOhm", "magenta")
-        gainPlot(charge_3_850kOhm, chargeVariance_3_850kOhm, bias_voltage_3_850kOhm, "3.850 kOhm", "mediumblue")
+        gainPlot(charge_nitrogenTemp, chargeVariance_nitrogenTemp, bias_voltage_nitrogen, "Liquid nitrogen", "magenta")
+        gainPlot(charge_1_174kOhm,chargeVariance_1_174kOhm,bias_voltage_1174, "5.55 K", "indigo")
+        gainPlot(charge_1_720kOhm_2, chargeVariance_1_720kOhm_2, bias_voltage_1720_2, "1.09 K", "mediumblue")
+        gainPlot(charge_3_850kOhm, chargeVariance_3_850kOhm, bias_voltage_3_850kOhm, "180 mK", "cyan")
         plt.savefig("./DataCollection/gainDiffTemp.png")
         plt.show()
 
     if settings["plot"]:
-        chargeAndHeightPlot(charge_WarmUpPT450Ohm, height_WarmUpPT450Ohm, WarmUpBias450Ohm, chargeVariance_WarmUpPT450Ohm, heightVariance_WarmUpPT450Ohm)
+        chargeAndHeightPlot(charge_roomTemp, height_roomTemp, bias_voltage_roomTemp, chargeVariance_roomTemp, heightVariance_roomTemp)
+        chargeAndHeightPlot(charge_nitrogenTemp, height_nitrogenTemp, bias_voltage_nitrogen, chargeVariance_nitrogenTemp, heightVariance_nitrogenTemp)
+        chargeAndHeightPlot(charge_1_174kOhm, height_1_174kOhm, bias_voltage_1174, chargeVariance_1_174kOhm, heightVariance_1_174kOhm)
+        chargeAndHeightPlot(charge_1_720kOhm_2, height_1_720kOhm_2, bias_voltage_1720_2, chargeVariance_1_720kOhm_2, heightVariance_1_720kOhm_2)
+        chargeAndHeightPlot(charge_3_850kOhm, height_3_850kOhm, bias_voltage_3_850kOhm, chargeVariance_3_850kOhm, heightVariance_3_850kOhm)
 
 # Use for easy list creation. Copy printed lists to save and use data.
 def readCsv(settings):
@@ -150,7 +156,7 @@ def referenceGain():
     params = scipy.optimize.curve_fit(line, voltage, gain)
     linspace = np.arange(1.5,4.1,0.1)
     line1 = line(linspace, params[0][0], params[0][1])
-    plt.plot(linspace, line1, linestyle = "--", label = "Datasheet room temperature")
+    plt.plot(linspace, line1, linestyle = "--", label = "Room temperature (datasheet)")
     plt.legend()
 
 def breakDownVoltCharge(chargeList, chargeVariances, bias_voltage):
@@ -181,6 +187,7 @@ def gainPlot(chargeList, chargeVariance, biasVoltageList, label, color):
     # yticks = np.arange(2E6, 7E6, 1E6)
     # print(yticks)
     # plt.yticks(yticks)
+    
 
 
 def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVariances):
@@ -193,6 +200,7 @@ def chargeAndHeightPlot(charge, height, bias_voltage, chargeVariances, heightVar
     bv = sm.add_constant(bias_voltage)
     chargefit = sm.WLS(charge, bv, weights = chargeWeight)
     chargeResult = chargefit.fit()
+    print(chargeResult.params[1])
     line1 = line(x, chargeResult.params[1], chargeResult.params[0])
     breakdownResult = solve(line1, x)
     breakDownOmega = (np.sqrt(chargeResult.cov_params()[0][0]/((chargeResult.params[0])**2)+chargeResult.cov_params()[1][1]/((chargeResult.params[1])**2)-2*(chargeResult.cov_params()[0][1])/(chargeResult.params[0]*chargeResult.params[1]))*breakdownResult[0])

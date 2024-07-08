@@ -12,8 +12,9 @@ from sympy import Symbol
 import scipy.optimize
 
 
+
 # connect
-if True:
+if False:
     print("Test connection")
     rm = visa.ResourceManager()
     list = rm.list_resources()
@@ -36,27 +37,54 @@ if True:
 
 
 
-reset = 1 # Reset source meter before starting measurements
+reset = 0 # Reset source meter before starting measurements
 singleTest = 0
 sweepTest = 0
-sweepAverageTest = 1 # Change sweep parameters from belowe
+sweepAverageTest = 0 # Change sweep parameters from belowe
 plotSweep = 1 # Plot IV curves from sweep
 plotSweepDCRcompensated = 0
 plotSweepSqrt = 0 # Plot sqrt(I)V curves from sweep
 closeAfter = 0 # Close source meter and connection
 
 
-filename = "LED400uA_1_3Kmixchamb"
+filename = "darkCurrentShutterClosed"
 #filename2 = "secoundBreakdown_openShutter_1169Ohm"
 darkCurrentFileName = "darkcurrentOpen_413OhmPtPlate"
-dateFolder = "18062024" #CHANGE 
-ledInt = "LED 400 uA"
-temperature = "1.3 K mixing chamber"
-startVoltage = 20
-endVoltage = 24.5
-voltageStep = 0.1
+dateFolder = "19032024" #CHANGE 
+ledInt = "Measured current, 100 $\\mu$A LED"
+temperature = "45.9 K pt (plate)"
+startVoltage = 35
+endVoltage = 35.6
+voltageStep = 0.05
 pointsPerVoltage = 10
 
+
+# Chat GPT generated stuff to pick a point
+class PointPicker:
+    def __init__(self, x, y, selection):
+        self.x = x
+        self.y = y
+        self.selected_index = None
+        self.fig, self.ax = plt.subplots()
+        self.scatter = self.ax.scatter(x, y)
+        self.ax.set_title(selection)
+        self.fig.canvas.mpl_connect('button_press_event', self.on_click)
+        plt.show()
+
+    def on_click(self, event):
+        if event.inaxes != self.ax:
+            return
+        
+        # Calculate the distances between the click and all points
+        distances = np.hypot(self.x - event.xdata, self.y - event.ydata)
+        self.selected_index = np.argmin(distances)
+        
+        print(f'Selected point index: {self.selected_index}')
+        plt.close(self.fig)  # Close the plot window
+
+def pick_point_from_scatter(x, y, title):
+    picker = PointPicker(x, y, title)
+    return picker.selected_index
 
 if reset:
     #RUN THESE AFTER START OR GET FUCKED
@@ -110,8 +138,8 @@ if plotSweep:
     #plt.scatter(voltageup2, currentup2, s=2, c="green", marker="d", label = "Shutter open")
     print(len(voltageup))
     plt.xlabel("$U$ / V")
-    plt.ylabel("$I$ / uA")
-    plt.legend()
+    plt.ylabel("$I$ / $\\mu$A")
+    #plt.legend()
     plt.tight_layout()
     plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename)
     plt.show()
@@ -145,17 +173,22 @@ if plotSweepSqrt:
         else:
             fixedDataset.append(data)
     currentSqrt = [np.sqrt(10**(6)*point) for point in fixedDataset]
-    plt.scatter(voltage, currentSqrt, s=2, c="red", marker="d", label = str(ledInt)+" LED")
+    
+    # Pick points for fit
+    start = pick_point_from_scatter(voltage, currentSqrt, "Select starting point for linear fit")
+    end = pick_point_from_scatter(voltage, currentSqrt, "Select ending point for linear fit")
+    
+    plt.scatter(voltage, currentSqrt, s=2, c="red", marker="d", label = str(ledInt))
     print(len(voltage))
-    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[12:16], ydata = currentSqrt[12:16]) # Gives parameters for a line fit, check ctarting point from image
+    voltResult = scipy.optimize.curve_fit(line, xdata = voltage[start:end+1], ydata = currentSqrt[start:end+1]) # Gives parameters for a line fit, check ctarting point from image
     print(voltResult) 
     x = Symbol("x")
     lineFit = line(x, voltResult[0][0], voltResult[0][1]) # arguments x, a (slope) and b (intercept)
-    breakdownResult = solve(lineFit-currentSqrt[0], x) # solves x from lineFit y = 0
+    breakdownResult = solve(lineFit, x) # solves x from lineFit y = 0
     
     linSpace = np.linspace(21, 24, 1000) # Change linspace to match used voltage range in sweep
     linePlot = line(linSpace, voltResult[0][0], voltResult[0][1])
-    plt.plot(linSpace, linePlot, color = "black", label = f"Linear fit, V_bd {breakdownResult[0]:.3f}")
+    plt.plot(linSpace, linePlot, color = "black", label = f"Linear fit, V$_{{br}}$ {breakdownResult[0]:.3f}")
 
     plt.xlabel("$U$ / V")
     plt.ylabel("$\sqrt{I}$ / $\sqrt{uA}$")
@@ -163,3 +196,5 @@ if plotSweepSqrt:
     plt.tight_layout()
     plt.savefig("./dataCollection/"+dateFolder+"/Photos/" + filename+"Sqrt")
     plt.show()
+
+
